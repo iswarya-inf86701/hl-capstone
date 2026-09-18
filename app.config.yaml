@@ -42,7 +42,27 @@ application:
             inputs:
               LOG_LEVEL: debug
             annotations:
-              require-adobe-auth: true
+              # require-adobe-auth: true
+              include-ims-credentials: true
+              final: true
+          
+          login:
+            function: actions/login/index.js
+            web: 'yes'
+            runtime: nodejs:22
+            inputs:
+              LOG_LEVEL: debug
+            annotations:
+              include-ims-credentials: true
+              final: true
+
+          validate-token:
+            function: actions/validate-token/index.js
+            web: 'yes'
+            runtime: nodejs:22
+            inputs:
+              LOG_LEVEL: debug
+            annotations:
               include-ims-credentials: true
               final: true
 

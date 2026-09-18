@@ -1,4 +1,4 @@
-/* 
+/*
 * <license header>
 */
 
@@ -9,14 +9,19 @@
  * Invokes a web action
  *
  * @param  {string} actionUrl
- * @param {object} headers
+ * @param  {object} headers
  * @param  {object} params
  *
  * @returns {Promise<string|object>} the response
  *
  */
 
-async function actionWebInvoke (actionUrl, headers = {}, params = {}, options = { method: 'POST' }) {
+async function actionWebInvoke (
+  actionUrl,
+  headers = {},
+  params = {},
+  options = { method: 'POST' }
+) {
   const actionHeaders = {
     'Content-Type': 'application/json',
     ...headers
@@ -34,24 +39,38 @@ async function actionWebInvoke (actionUrl, headers = {}, params = {}, options = 
 
   if (fetchConfig.method === 'GET') {
     actionUrl = new URL(actionUrl)
-    Object.keys(params).forEach(key => actionUrl.searchParams.append(key, params[key]))
+
+    Object.keys(params).forEach(key => {
+      actionUrl.searchParams.append(key, params[key])
+    })
   } else if (fetchConfig.method === 'POST') {
     fetchConfig.body = JSON.stringify(params)
   }
 
   const response = await fetch(actionUrl, fetchConfig)
 
-  let content = await response.text()
+  const content = await response.text()
+
+  let parsedContent = content
+
+  try {
+    parsedContent = JSON.parse(content)
+  } catch (e) {
+    // Response is not JSON
+  }
 
   if (!response.ok) {
-    throw new Error(`failed request to '${actionUrl}' with status: ${response.status} and message: ${content}`)
+    const error = new Error(
+      parsedContent?.message || 'Request failed'
+    )
+
+    error.status = response.status
+    error.response = parsedContent
+
+    throw error
   }
-  try {
-    content = JSON.parse(content)
-  } catch (e) {
-    // response is not json
-  }
-  return content
+
+  return parsedContent
 }
 
 export default actionWebInvoke

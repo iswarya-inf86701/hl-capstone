@@ -2,13 +2,13 @@ const { Core } = require('@adobe/aio-sdk')
 const libDb = require('@adobe/aio-lib-db')
 const crypto = require('crypto')
 
-async function main(params) {
+async function main (params) {
   let client
 
   try {
     const { name, email, password } = params
 
-    // Validate input
+    // Validate required fields
     if (!name || !email || !password) {
       return {
         statusCode: 400,
@@ -19,7 +19,7 @@ async function main(params) {
       }
     }
 
-    // Basic email validation
+    // Validate email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
     if (!emailRegex.test(email)) {
@@ -32,6 +32,7 @@ async function main(params) {
       }
     }
 
+    // Validate password
     if (password.length < 6) {
       return {
         statusCode: 400,
@@ -42,28 +43,37 @@ async function main(params) {
       }
     }
 
-    // Generate IMS access token for Database Storage
-    const token = await Core.AuthClient.generateAccessToken(params)
+    // Generate Adobe access token
+    const tokenResponse =
+      await Core.AuthClient.generateAccessToken(params)
 
-    // Initialize App Builder Database
+    const accessToken = tokenResponse.access_token
+
+    // Connect to App Builder DB
     const db = await libDb.init({
-      token: token.access_token,
+      token: accessToken,
       region: 'apac'
     })
 
-    // Connect to database
     client = await db.connect()
 
-    // Get users collection
     const users = await client.collection('users')
 
     // Normalize email
     const normalizedEmail = email.trim().toLowerCase()
 
-    // Check if user already exists
-    const existingUser = await users.findOne({
-      email: normalizedEmail
-    })
+    // Check whether user already exists
+    let existingUser = null
+
+    try {
+      existingUser = await users.findOne({
+        email: normalizedEmail
+      })
+    } catch (error) {
+      if (!error.message?.includes('Document not found')) {
+        throw error
+      }
+    }
 
     if (existingUser) {
       return {
@@ -75,17 +85,38 @@ async function main(params) {
       }
     }
 
-    // Hash password before storing it
-    const passwordHash = crypto
-      .createHash('sha256')
-      .update(password)
-      .digest('hex')
+    // Generate a unique random salt
+    const passwordSalt = crypto
+      .randomBytes(16)
+      .toString('hex')
 
-    // Store user
+    // Derive a password hash using scrypt
+    const passwordHash = await new Promise(
+      (resolve, reject) => {
+        crypto.scrypt(
+          password,
+          passwordSalt,
+          64,
+          (error, derivedKey) => {
+            if (error) {
+              reject(error)
+              return
+            }
+
+            resolve(
+              derivedKey.toString('hex')
+            )
+          }
+        )
+      }
+    )
+
+    // Store user in database
     const result = await users.insertOne({
       name: name.trim(),
       email: normalizedEmail,
       passwordHash: passwordHash,
+      passwordSalt: passwordSalt,
       createdAt: new Date().toISOString()
     })
 
@@ -97,7 +128,6 @@ async function main(params) {
         userId: result.insertedId
       }
     }
-
   } catch (error) {
     console.error('Signup error:', error)
 
@@ -105,10 +135,9 @@ async function main(params) {
       statusCode: 500,
       body: {
         success: false,
-        message: 'Unable to create user'
+        message: error.message || 'Unable to create user'
       }
     }
-
   } finally {
     if (client) {
       await client.close()
