@@ -10,6 +10,65 @@
   --ec-bg-muted: #f7f7f7;
   --ec-danger: #d7373f;
   --ec-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+
+  /* Brand palette used consistently across every page */
+  --brand-primary: #2680eb;
+  --brand-primary-dark: #1473e6;
+  --brand-accent: #fa6400;
+  --brand-success: #2d9d78;
+  --brand-amber: #f5a623;
+  --brand-gradient: linear-gradient(90deg, var(--brand-primary), var(--brand-accent));
+}
+
+/* Colorful underline accent below every page heading, for a consistent brand feel */
+.page-container > h1,
+.page-container > div > h1 {
+  position: relative;
+  padding-bottom: 14px;
+}
+
+.page-container > h1::after,
+.page-container > div > h1::after {
+  content: '';
+  display: block;
+  width: 56px;
+  height: 4px;
+  border-radius: 2px;
+  margin-top: 10px;
+  background: var(--brand-gradient);
+}
+
+/* Login / Signup card branding */
+.auth-card {
+  border-top: 4px solid transparent;
+  border-image: var(--brand-gradient) 1;
+}
+
+.auth-card h1::after {
+  content: '';
+  display: block;
+  width: 56px;
+  height: 4px;
+  border-radius: 2px;
+  margin: 10px auto 0;
+  background: var(--brand-gradient);
+}
+
+.category-badge {
+  display: inline-block;
+  align-self: flex-start;
+  text-transform: capitalize;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: var(--brand-primary-dark);
+  background-color: #eaf2fe;
+  border-radius: 999px;
+  padding: 4px 12px;
+}
+
+.brand-price {
+  color: var(--brand-primary-dark);
 }
 
 /* Common page content container used by every page */
@@ -156,8 +215,8 @@
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.03em;
-  color: #555;
-  background-color: var(--ec-bg-muted);
+  color: var(--brand-primary-dark);
+  background-color: #eaf2fe;
   border-radius: 999px;
   padding: 4px 12px;
   margin-bottom: 12px;
@@ -171,7 +230,7 @@
 }
 
 .pd-rating-stars {
-  color: #e8a100;
+  color: var(--brand-amber);
   font-size: 18px;
   letter-spacing: 2px;
 }
@@ -186,6 +245,7 @@
   font-size: 32px;
   font-weight: 700;
   margin-top: 16px;
+  color: var(--brand-primary-dark);
 }
 
 .pd-divider {
@@ -233,6 +293,63 @@
   color: #268e6c;
   font-weight: 600;
   margin-top: 12px;
+}
+
+/* Product cards - colorful hover interaction */
+.product-card {
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 24px rgba(38, 128, 235, 0.18);
+  border-color: var(--brand-primary);
+}
+
+/* Site header branding */
+.site-header {
+  border-bottom-color: var(--ec-border) !important;
+  box-shadow: inset 0 -3px 0 0 var(--brand-primary);
+}
+
+.site-header-logo {
+  background: var(--brand-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: var(--brand-primary);
+}
+
+/* Order status badges */
+.status-badge {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  padding: 4px 12px;
+  border-radius: 999px;
+  text-transform: capitalize;
+  margin-bottom: 8px;
+}
+
+.status-badge.status-placed {
+  color: var(--brand-success);
+  background-color: #e5f6ef;
+}
+
+/* Logout button - pill-shaped outline, matching the rest of the design system */
+.btn-logout {
+  border-radius: 999px !important;
+  border: 2px solid var(--ec-danger) !important;
+  background-color: #ffffff !important;
+  color: var(--ec-danger) !important;
+  font-weight: 700 !important;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.btn-logout:hover {
+  background-color: var(--ec-danger) !important;
+  color: #ffffff !important;
 }
 
 /* Order history cards */

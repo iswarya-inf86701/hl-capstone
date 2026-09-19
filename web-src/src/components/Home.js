@@ -456,6 +456,7 @@ export function Home () {
                       fontWeight: '700',
                       marginBottom: '8px'
                     }}
+                    UNSAFE_className="brand-price"
                   >
                     ${product.price}
                   </Text>
@@ -474,10 +475,8 @@ export function Home () {
                   )}
 
                   <Text
+                    UNSAFE_className="category-badge"
                     UNSAFE_style={{
-                      display: 'block',
-                      fontSize: '14px',
-                      textTransform: 'capitalize',
                       marginBottom: '16px'
                     }}
                   >

@@ -203,7 +203,7 @@ export function Signup ({ ims }) {
         UNSAFE_className="auth-page"
       >
         <View
-          UNSAFE_className="auth-card"
+          UNSAFE_className="auth-card card"
         >
           <Heading
             level={1}
@@ -265,7 +265,7 @@ export function Signup ({ ims }) {
       UNSAFE_className="auth-page"
     >
       <View
-        UNSAFE_className="auth-card"
+        UNSAFE_className="auth-card card"
       >
         <Heading
           level={1}

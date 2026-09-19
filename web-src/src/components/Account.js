@@ -185,7 +185,8 @@ export function Account () {
         </View>
 
         <Button
-          variant="negative"
+          variant="secondary"
+          UNSAFE_className="btn-logout"
           marginTop="size-400"
           onPress={handleLogout}
         >
@@ -264,8 +265,10 @@ export function Account () {
                   </Text>
                 </View>
 
-                <Text UNSAFE_style={{ display: 'block' }}>
-                  Status: {order.status}
+                <Text
+                  UNSAFE_className={`status-badge status-${String(order.status).toLowerCase()}`}
+                >
+                  {order.status}
                 </Text>
 
                 <View UNSAFE_className="order-items-list">

@@ -111,7 +111,7 @@ export function Login ({ ims }) {
       UNSAFE_className="auth-page"
     >
       <View
-        UNSAFE_className="auth-card"
+        UNSAFE_className="auth-card card"
       >
         <Heading
           level={1}
