@@ -42,7 +42,7 @@ application:
             inputs:
               LOG_LEVEL: debug
             annotations:
-              # require-adobe-auth: true
+              require-adobe-auth: false
               include-ims-credentials: true
               final: true
           
@@ -53,6 +53,7 @@ application:
             inputs:
               LOG_LEVEL: debug
             annotations:
+              require-adobe-auth: false
               include-ims-credentials: true
               final: true
 
@@ -63,6 +64,40 @@ application:
             inputs:
               LOG_LEVEL: debug
             annotations:
+              require-adobe-auth: false
+              include-ims-credentials: true
+              final: true
+          
+          ingest-products:
+            function: actions/ingest-products/index.js
+            web: 'yes'
+            runtime: nodejs:22
+            inputs:
+              LOG_LEVEL: debug
+            annotations:
+              require-adobe-auth: false
+              include-ims-credentials: true
+              final: true
+            
+          get-products:
+            function: actions/get-products/index.js
+            web: 'yes'
+            runtime: nodejs:22
+            inputs:
+              LOG_LEVEL: debug
+            annotations:
+              require-adobe-auth: false
+              include-ims-credentials: true
+              final: true
+
+          get-product-details:
+            function: actions/get-product-details/index.js
+            web: 'yes'
+            runtime: nodejs:22
+            inputs:
+              LOG_LEVEL: debug
+            annotations:
+              require-adobe-auth: false
               include-ims-credentials: true
               final: true
 

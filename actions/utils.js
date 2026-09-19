@@ -1,149 +1,114 @@
-/* 
-* <license header>
-*/
-
-/* This file exposes some common utilities for your actions */
+const { Core } = require('@adobe/aio-sdk')
+const libDb = require('@adobe/aio-lib-db')
 
 /**
+ * Validate the application user token.
  *
- * Returns a log ready string of the action input parameters.
- * The `Authorization` header content will be replaced by '<hidden>'.
+ * The application token is the random token generated
+ * during login and stored in the users collection.
  *
- * @param {object} params action input parameters.
- *
- * @returns {string}
- *
+ * This is different from the Adobe IMS access token,
+ * which is generated only for App Builder service access.
  */
-function stringParameters (params) {
-  // shallow copy to not override first level references
-  const paramsShallowCopy = { ...params }
-  // hide credentials from the include-ims-credentials annotation without
-  // overriding fields in __ims_oauth_s2s
-  if (params.__ims_oauth_s2s?.client_secret) {
-    paramsShallowCopy.__ims_oauth_s2s = {
-      ...params.__ims_oauth_s2s,
-      client_secret: '<hidden>'
-    }
-  }
-  // hide authorization token without overriding fields in __ow_headers
-  if (params.__ow_headers?.authorization) {
-    paramsShallowCopy.__ow_headers = {
-      ...params.__ow_headers,
-      authorization: '<hidden>'
-    }
-  }
-  return JSON.stringify(paramsShallowCopy)
-}
+async function validateUserToken (params, token) {
+  let client
 
-/**
- *
- * Returns the list of missing keys giving an object and its required keys.
- * A parameter is missing if its value is undefined or ''.
- * A value of 0 or null is not considered as missing.
- *
- * @param {object} obj object to check.
- * @param {array} required list of required keys.
- *        Each element can be multi level deep using a '.' separator e.g. 'myRequiredObj.myRequiredKey'
- *
- * @returns {array}
- * @private
- */
-function getMissingKeys (obj, required) {
-  return required.filter(r => {
-    const splits = r.split('.')
-    const last = splits[splits.length - 1]
-    const traverse = splits.slice(0, -1).reduce((tObj, split) => { tObj = (tObj[split] || {}); return tObj }, obj)
-    return traverse[last] === undefined || traverse[last] === '' // missing default params are empty string
-  })
-}
-
-/**
- *
- * Returns the list of missing keys giving an object and its required keys.
- * A parameter is missing if its value is undefined or ''.
- * A value of 0 or null is not considered as missing.
- *
- * @param {object} params action input parameters.
- * @param {array} requiredHeaders list of required input headers.
- * @param {array} requiredParams list of required input parameters.
- *        Each element can be multi level deep using a '.' separator e.g. 'myRequiredObj.myRequiredKey'.
- *
- * @returns {string} if the return value is not null, then it holds an error message describing the missing inputs.
- *
- */
-function checkMissingRequestInputs (params, requiredParams = [], requiredHeaders = []) {
-  let errorMessage = null
-
-  // input headers are always lowercase
-  requiredHeaders = requiredHeaders.map(h => h.toLowerCase())
-  // check for missing headers
-  const missingHeaders = getMissingKeys(params.__ow_headers || {}, requiredHeaders)
-  if (missingHeaders.length > 0) {
-    errorMessage = `missing header(s) '${missingHeaders}'`
-  }
-
-  // check for missing parameters
-  const missingParams = getMissingKeys(params, requiredParams)
-  if (missingParams.length > 0) {
-    if (errorMessage) {
-      errorMessage += ' and '
-    } else {
-      errorMessage = ''
-    }
-    errorMessage += `missing parameter(s) '${missingParams}'`
-  }
-
-  return errorMessage
-}
-
-/**
- *
- * Extracts the bearer token string from the Authorization header in the request parameters.
- *
- * @param {object} params action input parameters.
- *
- * @returns {string|undefined} the token string or undefined if not set in request headers.
- *
- */
-function getBearerToken (params) {
-  if (params.__ow_headers &&
-      params.__ow_headers.authorization &&
-      params.__ow_headers.authorization.startsWith('Bearer ')) {
-    return params.__ow_headers.authorization.substring('Bearer '.length)
-  }
-  return undefined
-}
-/**
- *
- * Returns an error response object and attempts to log.info the status code and error message
- *
- * @param {number} statusCode the error status code.
- *        e.g. 400
- * @param {string} message the error message.
- *        e.g. 'missing xyz parameter'
- * @param {*} [logger] an optional logger instance object with an `info` method
- *        e.g. `new require('@adobe/aio-sdk').Core.Logger('name')`
- *
- * @returns {object} the error object, ready to be returned from the action main's function.
- *
- */
-function errorResponse (statusCode, message, logger) {
-  if (logger && typeof logger.info === 'function') {
-    logger.info(`${statusCode}: ${message}`)
-  }
-  return {
-    error: {
-      statusCode,
-      body: {
-        error: message
+  try {
+    if (!token) {
+      return {
+        valid: false,
+        message: 'Authentication token is required'
       }
+    }
+
+    // Generate Adobe IMS access token for DB access.
+    const tokenResponse =
+      await Core.AuthClient.generateAccessToken(params)
+
+    const accessToken =
+      tokenResponse.access_token
+
+    // Initialize App Builder DB.
+    const db = await libDb.init({
+      token: accessToken,
+      region: 'apac'
+    })
+
+    client = await db.connect()
+
+    const users =
+      await client.collection('users')
+
+    let user = null
+
+    try {
+      user = await users.findOne({
+        userToken: token
+      })
+    } catch (error) {
+      if (
+        !error.message?.includes(
+          'Document not found'
+        )
+      ) {
+        throw error
+      }
+    }
+
+    // Token does not exist.
+    if (!user) {
+      return {
+        valid: false,
+        message: 'Invalid authentication token'
+      }
+    }
+
+    // Check token expiry.
+    const tokenExpiryTime =
+      new Date(
+        user.tokenExpiresAt
+      ).getTime()
+
+    if (
+      !user.tokenExpiresAt ||
+      Number.isNaN(tokenExpiryTime) ||
+      Date.now() >= tokenExpiryTime
+    ) {
+      return {
+        valid: false,
+        message:
+          'Your session has expired. Please log in again.'
+      }
+    }
+
+    // Token is valid.
+    return {
+      valid: true,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email
+      },
+      expiresAt: user.tokenExpiresAt
+    }
+  } catch (error) {
+    console.log(
+      'User token validation failed:',
+      error
+    )
+
+    return {
+      valid: false,
+      message:
+        'Unable to validate authentication token'
+    }
+  } finally {
+    if (client) {
+      await client.close()
     }
   }
 }
 
 module.exports = {
-  errorResponse,
-  getBearerToken,
-  stringParameters,
-  checkMissingRequestInputs
+  validateUserToken
 }

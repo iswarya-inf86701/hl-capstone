@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState } from 'react'
 import {
   Button,
   Form,
@@ -6,133 +6,233 @@ import {
   TextField,
   View,
   Text,
-  StatusLight,
-  ProgressCircle,
-} from "@adobe/react-spectrum";
-import { useLocation, useNavigate } from "react-router-dom";
+  Link,
+  ProgressCircle
+} from '@adobe/react-spectrum'
+import { useNavigate } from 'react-router-dom'
 
-import actionWebInvoke from "../utils";
-import allActions from "../config.json";
+import actionWebInvoke from '../utils'
+import allActions from '../config.json'
+import { useAuth } from './AuthContext'
+import './AuthPages.css'
 
-export function Login(props) {
-  const navigate = useNavigate();
-  const location = useLocation();
+export function Login ({ ims }) {
+  const navigate = useNavigate()
+  const { login } = useAuth()
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [identifier, setIdentifier] = useState('')
+  const [password, setPassword] = useState('')
 
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState(location.state?.message || "");
-  const [error, setError] = useState(false);
+  const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
+  const [loading, setLoading] = useState(false)
 
-  async function handleSubmit(event) {
-    event.preventDefault();
+  async function handleSubmit (event) {
+    event.preventDefault()
 
-    setLoading(true);
-    setMessage("");
-    setError(false);
+    setError('')
+    setSuccess('')
 
-    const headers = {
-      "Content-Type": "application/json",
-    };
-
-    // Add Adobe authentication headers when available
-    if (props.ims?.token) {
-      headers.authorization = `Bearer ${props.ims.token}`;
+    if (!identifier.trim() || !password) {
+      setError(
+        'Please enter your email/name and password.'
+      )
+      return
     }
 
-    if (props.ims?.org) {
-      headers["x-gw-ims-org-id"] = props.ims.org;
-    }
+    setLoading(true)
 
     try {
-      const response = await actionWebInvoke(allActions.login, headers, {
-        email,
-        password,
-      });
+      const response = await actionWebInvoke(
+        allActions['login'],
+        {},
+        {
+          email: identifier.trim(),
+          password: password
+        }
+      )
 
-      console.log("Login response:", response);
+      console.log('Login response:', response)
 
-      if (response.success) {
-        console.log("User token:", response.token);
-        console.log("Logged-in user:", response.user);
-        console.log("Token expires at:", response.expiresAt);
+      if (response.success === true) {
+        sessionStorage.setItem(
+          'userToken',
+          response.token
+        )
 
-        /*
-         * Stop loading before navigating.
-         * Login will be unmounted after navigate(),
-         * so we must not update its state afterward.
-         */
-        setLoading(false);
+        sessionStorage.setItem(
+          'user',
+          JSON.stringify(response.user)
+        )
 
-        navigate("/", {
-          state: {
-            message: "Welcome back! You have successfully logged in.",
-          },
-        });
+        sessionStorage.setItem(
+          'tokenExpiresAt',
+          response.expiresAt
+        )
 
-        return;
+        login(response.user)
+
+        setLoading(false)
+
+        navigate('/')
+        return
       }
 
-      setMessage(response.message || "Unable to log in.");
-      setError(true);
-      setLoading(false);
+      setError(
+        response.message ||
+        'Unable to login. Please try again.'
+      )
+
+      setLoading(false)
     } catch (err) {
-      console.log("Login error:", err);
+      console.log('Login request failed:', err)
 
-      if (err.status === 400) {
-        setMessage("Please enter your email and password.");
-      } else if (err.status === 401) {
-        setMessage("Invalid email or password.");
-      } else if (err.status === 500) {
-        setMessage("We could not log you in. Please try again.");
+      if (err.status === 401) {
+        setError(
+          'Invalid email/name or password.'
+        )
+      } else if (err.status === 400) {
+        setError(
+          err.message ||
+          'Please enter your email/name and password.'
+        )
       } else {
-        setMessage("Unable to log in. Please try again.");
+        setError(
+          'Unable to login. Please try again later.'
+        )
       }
 
-      setError(true);
-      setLoading(false);
+      setLoading(false)
     }
   }
 
   return (
-    <View maxWidth="size-4600" margin="auto">
-      <Heading level={1}>Login</Heading>
+    <View
+      UNSAFE_className="auth-page"
+    >
+      <View
+        UNSAFE_className="auth-card"
+      >
+        <Heading
+          level={1}
+          UNSAFE_style={{
+            margin: 0,
+            textAlign: 'center'
+          }}
+        >
+          Login
+        </Heading>
 
-      {message && (
-        <View marginBottom="size-200">
-          <Text>
-            <StatusLight variant={error ? "negative" : "positive"}>
-              {message}
-            </StatusLight>
-          </Text>
+        <Text
+          UNSAFE_style={{
+            display: 'block',
+            textAlign: 'center',
+            marginTop: '8px'
+          }}
+        >
+          Sign in to continue
+        </Text>
+
+        <View marginTop="size-400">
+          <Form
+            onSubmit={handleSubmit}
+            width="100%"
+          >
+            <TextField
+              label="Email or Name"
+              value={identifier}
+              onChange={(value) => {
+                setIdentifier(value)
+                setError('')
+              }}
+              isRequired
+              width="100%"
+            />
+
+            <TextField
+              label="Password"
+              type="password"
+              value={password}
+              onChange={(value) => {
+                setPassword(value)
+                setError('')
+              }}
+              isRequired
+              width="100%"
+              marginTop="size-200"
+            />
+
+            <View
+              marginTop="size-300"
+              UNSAFE_style={{
+                width: '100%'
+              }}
+            >
+              <Button
+                type="submit"
+                variant="accent"
+                isDisabled={loading}
+                width="100%"
+              >
+                {loading ? (
+                  <ProgressCircle
+                    size="S"
+                    isIndeterminate
+                    aria-label="Logging in"
+                  />
+                ) : (
+                  'Login'
+                )}
+              </Button>
+            </View>
+
+            {error && (
+              <Text
+                UNSAFE_style={{
+                  display: 'block',
+                  color: '#d7373f',
+                  marginTop: '16px',
+                  textAlign: 'center'
+                }}
+              >
+                {error}
+              </Text>
+            )}
+
+            {success && (
+              <Text
+                UNSAFE_style={{
+                  display: 'block',
+                  color: '#268e6c',
+                  marginTop: '16px',
+                  textAlign: 'center'
+                }}
+              >
+                {success}
+              </Text>
+            )}
+
+            <View
+              marginTop="size-300"
+              UNSAFE_style={{
+                textAlign: 'center'
+              }}
+            >
+              <Text>
+                Don't have an account?{' '}
+              </Text>
+
+              <Link
+                onPress={() => navigate('/signup')}
+              >
+                Sign Up
+              </Link>
+            </View>
+          </Form>
         </View>
-      )}
-
-      <Form onSubmit={handleSubmit}>
-        <TextField
-          label="Email or Name"
-          value={email}
-          onChange={setEmail}
-          isRequired
-        />
-
-        <TextField
-          label="Password"
-          type="password"
-          value={password}
-          onChange={setPassword}
-          isRequired
-        />
-
-        <Button type="submit" variant="accent" isDisabled={loading}>
-          {loading ? (
-            <ProgressCircle aria-label="Logging in" isIndeterminate size="S" />
-          ) : (
-            "Login"
-          )}
-        </Button>
-      </Form>
+      </View>
     </View>
-  );
+  )
 }
+
+export default Login

@@ -16,7 +16,7 @@ import actionWebInvoke from '../utils'
 import allActions from '../config.json'
 import './Products.css'
 
-export function Home () {
+export function Products () {
   const navigate = useNavigate()
 
   const [products, setProducts] = useState([])
@@ -41,28 +41,10 @@ export function Home () {
     setError('')
 
     try {
-      // Get the application user token
-      // stored after successful login.
-      const userToken =
-        sessionStorage.getItem('userToken')
-
-      // Make sure a token exists before
-      // calling the protected product action.
-      if (!userToken) {
-        setError(
-          'Your session has expired. Please log in again.'
-        )
-        return
-      }
-
       const response = await actionWebInvoke(
-        allActions[
-          'hl-capstone/get-products'
-        ],
+        allActions['hl-capstone/get-products'],
         {},
-        {
-          token: userToken
-        }
+        {}
       )
 
       console.log(
@@ -71,10 +53,7 @@ export function Home () {
       )
 
       if (response.success === true) {
-        setProducts(
-          response.products || []
-        )
-        setCurrentPage(1)
+        setProducts(response.products || [])
       } else {
         setError(
           response.message ||
@@ -87,15 +66,9 @@ export function Home () {
         err
       )
 
-      if (err.status === 401) {
-        setError(
-          'Your session has expired. Please log in again.'
-        )
-      } else {
-        setError(
-          'Unable to load products. Please try again later.'
-        )
-      }
+      setError(
+        'Unable to load products. Please try again later.'
+      )
     } finally {
       setLoading(false)
     }
@@ -286,24 +259,15 @@ export function Home () {
         overflowX: 'hidden'
       }}
     >
-      {/* Home Header */}
+      {/* Page Header */}
       <Heading level={1}>
-        Welcome to the Store
+        Products
       </Heading>
-
-      <Text
-        UNSAFE_style={{
-          display: 'block',
-          marginTop: '8px',
-          marginBottom: '28px'
-        }}
-      >
-        Explore our products
-      </Text>
 
       {/* Search / Filter / Sort */}
       <Flex
         gap="size-200"
+        marginTop="size-300"
         marginBottom="size-400"
         alignItems="end"
         wrap
@@ -451,6 +415,7 @@ export function Home () {
                     minWidth: 0
                   }}
                 >
+                  {/* Product Title */}
                   <Text
                     UNSAFE_style={{
                       display: 'block',
@@ -465,6 +430,7 @@ export function Home () {
                     {product.title}
                   </Text>
 
+                  {/* Price */}
                   <Text
                     UNSAFE_style={{
                       display: 'block',
@@ -476,6 +442,7 @@ export function Home () {
                     ${product.price}
                   </Text>
 
+                  {/* Rating */}
                   {product.rating && (
                     <Text
                       UNSAFE_style={{
@@ -489,6 +456,7 @@ export function Home () {
                     </Text>
                   )}
 
+                  {/* Category */}
                   <Text
                     UNSAFE_style={{
                       display: 'block',
@@ -500,6 +468,7 @@ export function Home () {
                     {product.category}
                   </Text>
 
+                  {/* View Product Button */}
                   <Button
                     variant="accent"
                     width="100%"
@@ -553,4 +522,4 @@ export function Home () {
   )
 }
 
-export default Home
+export default Products

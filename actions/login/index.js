@@ -20,13 +20,11 @@ async function main (params) {
 
     const identifier = email.trim()
 
-    // Generate Adobe access token
     const tokenResponse =
       await Core.AuthClient.generateAccessToken(params)
 
     const accessToken = tokenResponse.access_token
 
-    // Connect to App Builder DB
     const db = await libDb.init({
       token: accessToken,
       region: 'apac'
@@ -41,7 +39,7 @@ async function main (params) {
 
     let user = null
 
-    // First try to find user by email
+    // First try email.
     try {
       user = await users.findOne({
         email: normalizedIdentifier
@@ -52,11 +50,15 @@ async function main (params) {
       }
     }
 
-    // If email was not found, try name
+    // If email was not found, try name.
+    // Name comparison is case-insensitive.
     if (!user) {
       try {
         user = await users.findOne({
-          name: identifier
+          name: {
+            $regex: `^${escapeRegex(identifier)}$`,
+            $options: 'i'
+          }
         })
       } catch (error) {
         if (!error.message?.includes('Document not found')) {
@@ -65,7 +67,6 @@ async function main (params) {
       }
     }
 
-    // User not found
     if (!user) {
       return {
         statusCode: 401,
@@ -76,8 +77,6 @@ async function main (params) {
       }
     }
 
-    // Make sure this is a user created with the new
-    // scrypt password storage
     if (!user.passwordSalt || !user.passwordHash) {
       return {
         statusCode: 401,
@@ -88,8 +87,8 @@ async function main (params) {
       }
     }
 
-    // Derive hash from entered password using the
-    // same salt stored for this user
+    // Generate hash from entered password
+    // using the user's stored salt.
     const passwordHash = await new Promise(
       (resolve, reject) => {
         crypto.scrypt(
@@ -110,7 +109,6 @@ async function main (params) {
       }
     )
 
-    // Compare derived hash with stored hash
     const storedHashBuffer =
       Buffer.from(user.passwordHash, 'hex')
 
@@ -139,12 +137,12 @@ async function main (params) {
     const userToken =
       crypto.randomBytes(32).toString('hex')
 
+    // Token expires after 1 hour
     const tokenExpiresAt =
       new Date(
         Date.now() + 60 * 60 * 1000
       ).toISOString()
 
-    // Store token and expiry
     await users.updateOne(
       {
         _id: user._id
@@ -172,7 +170,7 @@ async function main (params) {
       }
     }
   } catch (error) {
-    console.error('Login error:', error)
+    console.log('Login request failed:', error)
 
     return {
       statusCode: 500,
@@ -186,6 +184,15 @@ async function main (params) {
       await client.close()
     }
   }
+}
+
+// Escape special regex characters so that
+// the user's input is treated as plain text.
+function escapeRegex (value) {
+  return value.replace(
+    /[.*+?^${}()|[\]\\]/g,
+    '\\$&'
+  )
 }
 
 exports.main = main
