@@ -34,8 +34,11 @@ export function CartProvider ({ children }) {
     )
   }, [cartItems])
 
-  // Add product to cart
-  function addToCart (product) {
+  // Add product to cart. Defaults to quantity 1
+  // but supports adding a specified quantity at once.
+  function addToCart (product, quantity = 1) {
+    const quantityToAdd = Math.max(1, Number(quantity) || 1)
+
     setCartItems((currentItems) => {
       const existingItem =
         currentItems.find(
@@ -52,7 +55,7 @@ export function CartProvider ({ children }) {
               ? {
                   ...item,
                   quantity:
-                    item.quantity + 1
+                    item.quantity + quantityToAdd
                 }
               : item
         )
@@ -62,7 +65,7 @@ export function CartProvider ({ children }) {
         ...currentItems,
         {
           ...product,
-          quantity: 1
+          quantity: quantityToAdd
         }
       ]
     })

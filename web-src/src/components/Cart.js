@@ -31,51 +31,39 @@ export function Cart () {
     navigate('/checkout')
   }
 
+  function viewProductDetails (productId) {
+    navigate(`/products/${productId}`)
+  }
+
   if (cartItems.length === 0) {
     return (
-      <View
-        width="100%"
-        padding="size-400"
-        UNSAFE_style={{
-          boxSizing: 'border-box',
-          maxWidth: '100%',
-          overflowX: 'hidden'
-        }}
-      >
+      <View UNSAFE_className="page-container">
         <Heading level={1}>
           Shopping Cart
         </Heading>
 
-        <Text
-          UNSAFE_style={{
-            display: 'block',
-            marginTop: '20px',
-            marginBottom: '24px'
-          }}
-        >
-          Your cart is empty.
-        </Text>
+        <View UNSAFE_className="state-message">
+          <Text UNSAFE_className="state-icon">
+            🛒
+          </Text>
 
-        <Button
-          variant="accent"
-          onPress={continueShopping}
-        >
-          Continue Shopping
-        </Button>
+          <Text UNSAFE_style={{ display: 'block', marginBottom: '20px' }}>
+            Your cart is empty.
+          </Text>
+
+          <Button
+            variant="accent"
+            onPress={continueShopping}
+          >
+            Continue Shopping
+          </Button>
+        </View>
       </View>
     )
   }
 
   return (
-    <View
-      width="100%"
-      padding="size-400"
-      UNSAFE_style={{
-        boxSizing: 'border-box',
-        maxWidth: '100%',
-        overflowX: 'hidden'
-      }}
-    >
+    <View UNSAFE_className="page-container">
       <Heading level={1}>
         Shopping Cart
       </Heading>
@@ -95,13 +83,12 @@ export function Cart () {
       </Text>
 
       <View
+        UNSAFE_className="cart-layout"
         UNSAFE_style={{
           display: 'grid',
           gridTemplateColumns:
             'minmax(0, 1fr) 320px',
-          gap: '32px',
-          maxWidth: '1200px',
-          margin: '0 auto'
+          gap: '32px'
         }}
       >
         {/* Cart Items */}
@@ -109,32 +96,39 @@ export function Cart () {
           {cartItems.map((item) => (
             <View
               key={item.productId}
-              borderWidth="thin"
-              borderColor="dark"
-              borderRadius="regular"
-              padding="size-300"
+              UNSAFE_className="card cart-item"
               marginBottom="size-300"
               UNSAFE_style={{
                 display: 'flex',
                 gap: '24px',
-                alignItems: 'center',
-                boxSizing: 'border-box',
-                backgroundColor: 'white'
+                alignItems: 'center'
               }}
             >
               {/* Product Image */}
-              <View
-                width="size-2400"
-                height="size-2400"
-                UNSAFE_style={{
+              <div
+                role="button"
+                tabIndex={0}
+                aria-label={`View details for ${item.title}`}
+                onClick={() =>
+                  viewProductDetails(item.productId)
+                }
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    viewProductDetails(item.productId)
+                  }
+                }}
+                style={{
                   flexShrink: 0,
                   display: 'flex',
                   justifyContent: 'center',
                   alignItems: 'center',
+                  width: 'var(--spectrum-global-dimension-size-2400, 192px)',
+                  height: 'var(--spectrum-global-dimension-size-2400, 192px)',
                   backgroundColor: '#f7f7f7',
                   borderRadius: '8px',
                   padding: '12px',
-                  boxSizing: 'border-box'
+                  boxSizing: 'border-box',
+                  cursor: 'pointer'
                 }}
               >
                 <img
@@ -146,7 +140,7 @@ export function Cart () {
                     objectFit: 'contain'
                   }}
                 />
-              </View>
+              </div>
 
               {/* Product Information */}
               <View
@@ -155,17 +149,28 @@ export function Cart () {
                   minWidth: 0
                 }}
               >
-                <Text
-                  UNSAFE_style={{
-                    display: 'block',
+                <div
+                  role="button"
+                  tabIndex={0}
+                  onClick={() =>
+                    viewProductDetails(item.productId)
+                  }
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      viewProductDetails(item.productId)
+                    }
+                  }}
+                  style={{
+                    display: 'inline-block',
                     fontSize: '18px',
                     fontWeight: '600',
                     lineHeight: '1.4',
-                    marginBottom: '8px'
+                    marginBottom: '8px',
+                    cursor: 'pointer'
                   }}
                 >
                   {item.title}
-                </Text>
+                </div>
 
                 <Text
                   UNSAFE_style={{
@@ -250,12 +255,8 @@ export function Cart () {
 
         {/* Cart Summary */}
         <View
-          borderWidth="thin"
-          borderColor="dark"
-          borderRadius="regular"
-          padding="size-400"
+          UNSAFE_className="card"
           UNSAFE_style={{
-            boxSizing: 'border-box',
             height: 'fit-content',
             backgroundColor: '#f7f7f7'
           }}

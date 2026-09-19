@@ -230,10 +230,7 @@ export function Home () {
 
   if (loading) {
     return (
-      <View
-        width="100%"
-        padding="size-400"
-      >
+      <View UNSAFE_className="page-container">
         <Flex
           direction="column"
           alignItems="center"
@@ -255,21 +252,12 @@ export function Home () {
 
   if (error) {
     return (
-      <View
-        width="100%"
-        padding="size-400"
-      >
+      <View UNSAFE_className="page-container">
         <Heading level={1}>
           Products
         </Heading>
 
-        <Text
-          UNSAFE_style={{
-            display: 'block',
-            color: '#d7373f',
-            marginTop: '20px'
-          }}
-        >
+        <Text UNSAFE_className="error-text">
           {error}
         </Text>
       </View>
@@ -277,107 +265,93 @@ export function Home () {
   }
 
   return (
-    <View
-      width="100%"
-      padding="size-400"
-      UNSAFE_style={{
-        boxSizing: 'border-box',
-        maxWidth: '100%',
-        overflowX: 'hidden'
-      }}
-    >
+    <View UNSAFE_className="page-container">
       {/* Home Header */}
-      <Heading level={1}>
-        Welcome to the Store
-      </Heading>
+      <View UNSAFE_className="page-header">
+        <Heading level={1}>
+          Welcome to the Store
+        </Heading>
 
-      <Text
-        UNSAFE_style={{
-          display: 'block',
-          marginTop: '8px',
-          marginBottom: '28px'
-        }}
-      >
-        Explore our products
-      </Text>
+        <Text UNSAFE_className="page-subtitle">
+          Explore our products
+        </Text>
+      </View>
 
       {/* Search / Filter / Sort */}
-      <Flex
-        gap="size-200"
-        marginBottom="size-400"
-        alignItems="end"
-        wrap
-        UNSAFE_style={{
-          maxWidth: '100%'
-        }}
-      >
-        <TextField
-          label="Search products"
-          placeholder="Search by product name"
-          value={searchTerm}
-          onChange={handleSearchChange}
-          width="size-4600"
-        />
+      <View UNSAFE_className="filter-bar">
+        <View UNSAFE_className="filter-search">
+          <TextField
+            label="Search products"
+            placeholder="Search by product name"
+            value={searchTerm}
+            onChange={handleSearchChange}
+            width="100%"
+          />
+        </View>
 
-        <Picker
-          label="Category"
-          selectedKey={selectedCategory}
-          onSelectionChange={
-            handleCategoryChange
-          }
-          width="size-2400"
-        >
-          {categories.map(
-            (category) => (
-              <Item
-                key={category}
-                textValue={category}
-              >
-                {category === 'all'
-                  ? 'All Categories'
-                  : category}
-              </Item>
-            )
-          )}
-        </Picker>
+        <View UNSAFE_className="filter-category">
+          <Picker
+            label="Category"
+            selectedKey={selectedCategory}
+            onSelectionChange={
+              handleCategoryChange
+            }
+            width="100%"
+          >
+            {categories.map(
+              (category) => (
+                <Item
+                  key={category}
+                  textValue={category}
+                >
+                  {category === 'all'
+                    ? 'All Categories'
+                    : category}
+                </Item>
+              )
+            )}
+          </Picker>
+        </View>
 
-        <Picker
-          label="Sort By"
-          selectedKey={sortOption}
-          onSelectionChange={
-            handleSortChange
-          }
-          width="size-2400"
-        >
-          <Item key="default">
-            Default
-          </Item>
+        <View UNSAFE_className="filter-sort">
+          <Picker
+            label="Sort By"
+            selectedKey={sortOption}
+            onSelectionChange={
+              handleSortChange
+            }
+            width="100%"
+          >
+            <Item key="default">
+              Default
+            </Item>
 
-          <Item key="price-low">
-            Price: Low to High
-          </Item>
+            <Item key="price-low">
+              Price: Low to High
+            </Item>
 
-          <Item key="price-high">
-            Price: High to Low
-          </Item>
+            <Item key="price-high">
+              Price: High to Low
+            </Item>
 
-          <Item key="rating-low">
-            Rating: Low to High
-          </Item>
+            <Item key="rating-low">
+              Rating: Low to High
+            </Item>
 
-          <Item key="rating-high">
-            Rating: High to Low
-          </Item>
+            <Item key="rating-high">
+              Rating: High to Low
+            </Item>
 
-          <Item key="name-az">
-            Name: A to Z
-          </Item>
+            <Item key="name-az">
+              Name: A to Z
+            </Item>
 
-          <Item key="name-za">
-            Name: Z to A
-          </Item>
-        </Picker>
-      </Flex>
+            <Item key="name-za">
+              Name: Z to A
+            </Item>
+          </Picker>
+        </View>
+      </View>
 
       {/* Product Count */}
       <Text
@@ -392,9 +366,19 @@ export function Home () {
 
       {/* Product Cards */}
       {paginatedProducts.length === 0 ? (
-        <Text>
-          No products found.
-        </Text>
+        <View UNSAFE_className="state-message">
+          <Text UNSAFE_className="state-icon">
+            🔍
+          </Text>
+
+          <Heading level={3}>
+            No products found
+          </Heading>
+
+          <Text UNSAFE_style={{ display: 'block' }}>
+            Try adjusting your search or filters.
+          </Text>
+        </View>
       ) : (
         <View
           UNSAFE_className="products-grid"

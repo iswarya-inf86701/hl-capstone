@@ -19,15 +19,20 @@ export function ProductDetails () {
   const navigate = useNavigate()
 
   const {
+    cartItems,
     addToCart,
+    increaseQuantity: increaseCartQuantity,
+    decreaseQuantity: decreaseCartQuantity,
     cartQuantity
   } = useCart()
 
   const [product, setProduct] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [addedToCart, setAddedToCart] = useState(false)
 
   useEffect(() => {
+    setAddedToCart(false)
     loadProductDetails()
   }, [productId])
 
@@ -97,8 +102,34 @@ export function ProductDetails () {
     navigate('/')
   }
 
+  // Quantity always reflects the live cart state for this product,
+  // so the stepper and Add to Cart button stay in sync both ways.
+  const cartItem = product
+    ? cartItems.find(
+        (item) => item.productId === product.productId
+      )
+    : null
+
+  const quantity = cartItem ? cartItem.quantity : 0
+
+  function decreaseQuantity () {
+    if (quantity > 0) {
+      decreaseCartQuantity(product.productId)
+    }
+  }
+
+  function increaseQuantity () {
+    if (quantity === 0) {
+      addToCart(product, 1)
+    } else {
+      increaseCartQuantity(product.productId)
+    }
+
+    setAddedToCart(true)
+  }
+
   function handleAddToCart () {
-    addToCart(product)
+    increaseQuantity()
   }
 
   function goToCart () {
@@ -107,10 +138,7 @@ export function ProductDetails () {
 
   if (loading) {
     return (
-      <View
-        width="100%"
-        padding="size-400"
-      >
+      <View UNSAFE_className="page-container">
         <Flex
           direction="column"
           alignItems="center"
@@ -132,15 +160,7 @@ export function ProductDetails () {
 
   if (error) {
     return (
-      <View
-        width="100%"
-        padding="size-400"
-        UNSAFE_style={{
-          boxSizing: 'border-box',
-          maxWidth: '100%',
-          overflowX: 'hidden'
-        }}
-      >
+      <View UNSAFE_className="page-container">
         <Button
           variant="secondary"
           onPress={goBackToHome}
@@ -155,13 +175,7 @@ export function ProductDetails () {
           Product Not Found
         </Heading>
 
-        <Text
-          UNSAFE_style={{
-            display: 'block',
-            color: '#d7373f',
-            marginTop: '16px'
-          }}
-        >
+        <Text UNSAFE_className="error-text">
           {error}
         </Text>
       </View>
@@ -173,15 +187,7 @@ export function ProductDetails () {
   }
 
   return (
-    <View
-      width="100%"
-      padding="size-400"
-      UNSAFE_style={{
-        boxSizing: 'border-box',
-        maxWidth: '100%',
-        overflowX: 'hidden'
-      }}
-    >
+    <View UNSAFE_className="page-container">
       {/* Back Button */}
       <Button
         variant="secondary"
@@ -192,7 +198,7 @@ export function ProductDetails () {
 
       {/* Product Details */}
       <View
-        UNSAFE_className="product-details-layout"
+        UNSAFE_className="product-details-layout pd-layout"
         UNSAFE_style={{
           display: 'grid',
           gridTemplateColumns:
@@ -203,47 +209,18 @@ export function ProductDetails () {
         }}
       >
         {/* Product Image */}
-        <View
-          UNSAFE_style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            minHeight: '450px',
-            backgroundColor: '#f7f7f7',
-            borderRadius: '12px',
-            padding: '32px',
-            boxSizing: 'border-box'
-          }}
-        >
+        <View UNSAFE_className="pd-image-frame">
           <img
             src={product.image}
             alt={product.title}
-            style={{
-              maxWidth: '100%',
-              maxHeight: '420px',
-              objectFit: 'contain'
-            }}
+            className="pd-image"
           />
         </View>
 
         {/* Product Information */}
-        <View
-          UNSAFE_style={{
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            minWidth: 0
-          }}
-        >
+        <View UNSAFE_className="pd-info">
           {/* Category */}
-          <Text
-            UNSAFE_style={{
-              display: 'block',
-              fontSize: '14px',
-              textTransform: 'capitalize',
-              marginBottom: '12px'
-            }}
-          >
+          <Text UNSAFE_className="pd-category">
             {product.category}
           </Text>
 
@@ -258,68 +235,81 @@ export function ProductDetails () {
             {product.title}
           </Heading>
 
+          {/* Rating */}
+          {product.rating && (
+            <View UNSAFE_className="pd-rating">
+              <Text UNSAFE_className="pd-rating-stars">
+                {'★'.repeat(Math.round(product.rating.rate))}
+                {'☆'.repeat(5 - Math.round(product.rating.rate))}
+              </Text>
+
+              <Text UNSAFE_className="pd-rating-count">
+                {product.rating.rate} ({product.rating.count} reviews)
+              </Text>
+            </View>
+          )}
+
           {/* Price */}
-          <Text
-            UNSAFE_style={{
-              display: 'block',
-              fontSize: '28px',
-              fontWeight: '700',
-              marginTop: '20px',
-              marginBottom: '12px'
-            }}
-          >
+          <Text UNSAFE_className="pd-price">
             ${product.price}
           </Text>
 
-          {/* Rating */}
-          {product.rating && (
-            <Text
-              UNSAFE_style={{
-                display: 'block',
-                fontSize: '16px',
-                marginBottom: '24px'
-              }}
-            >
-              ⭐ {product.rating.rate} (
-              {product.rating.count} reviews)
-            </Text>
-          )}
+          <View UNSAFE_className="pd-divider" />
 
           {/* Description */}
-          <Text
-            UNSAFE_style={{
-              display: 'block',
-              fontSize: '16px',
-              lineHeight: '1.6',
-              marginBottom: '28px'
-            }}
-          >
+          <Text UNSAFE_className="pd-description">
             {product.description}
           </Text>
 
           {/* Product ID */}
-          <Text
-            UNSAFE_style={{
-              display: 'block',
-              fontSize: '14px',
-              marginBottom: '24px'
-            }}
-          >
+          <Text UNSAFE_className="pd-meta">
             Product ID: {product.productId}
           </Text>
 
-          {/* Cart Actions */}
-          <Flex
-            direction="column"
-            gap="size-200"
-          >
+          {/* Quantity + Add to Cart */}
+          <View UNSAFE_className="pd-purchase-row">
+            <View
+              UNSAFE_className="qty-selector"
+            >
+              <button
+                type="button"
+                onClick={decreaseQuantity}
+                disabled={quantity <= 0}
+                aria-label="Decrease quantity"
+              >
+                −
+              </button>
+
+              <span className="qty-value">
+                {quantity}
+              </span>
+
+              <button
+                type="button"
+                onClick={increaseQuantity}
+                aria-label="Increase quantity"
+              >
+                +
+              </button>
+            </View>
+
             <Button
               variant="accent"
+              UNSAFE_className="pd-add-to-cart"
               onPress={handleAddToCart}
             >
               Add to Cart
             </Button>
+          </View>
 
+          {addedToCart && (
+            <Text UNSAFE_className="pd-added-message">
+              Added to cart.
+            </Text>
+          )}
+
+          {/* Secondary Actions */}
+          <View UNSAFE_className="pd-secondary-actions">
             <Button
               variant="secondary"
               onPress={goToCart}
@@ -333,7 +323,7 @@ export function ProductDetails () {
             >
               Continue Shopping
             </Button>
-          </Flex>
+          </View>
         </View>
       </View>
     </View>

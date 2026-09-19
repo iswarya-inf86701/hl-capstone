@@ -37,6 +37,7 @@ import {
   CartProvider,
   useCart
 } from './CartContext'
+import './App.css'
 
 function App (props) {
   console.log(
@@ -103,7 +104,6 @@ function App (props) {
                 {/* Page Content */}
                 <View
                   gridArea="content"
-                  padding="size-200"
                   UNSAFE_style={{
                     boxSizing: 'border-box',
                     width: '100%',
@@ -278,6 +278,7 @@ function SiteHeader () {
 
   return (
     <View
+      UNSAFE_className="site-header"
       UNSAFE_style={{
         width: '100%',
         boxSizing: 'border-box',
@@ -294,6 +295,10 @@ function SiteHeader () {
         justifyContent="space-between"
         alignItems="center"
         width="100%"
+        UNSAFE_style={{
+          maxWidth: '1200px',
+          margin: '0 auto'
+        }}
       >
 
         {/* Ecommerce Logo / Home */}
@@ -303,6 +308,7 @@ function SiteHeader () {
           aria-label="Go to Home"
         >
           <Text
+            UNSAFE_className="site-header-logo"
             UNSAFE_style={{
               fontSize: '26px',
               fontWeight: '700',

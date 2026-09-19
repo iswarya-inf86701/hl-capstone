@@ -4,10 +4,13 @@ import {
   View,
   Text,
   Flex,
-  Button
+  Button,
+  ProgressCircle
 } from '@adobe/react-spectrum'
 import { useNavigate } from 'react-router-dom'
 
+import actionWebInvoke from '../utils'
+import allActions from '../config.json'
 import { useCart } from './CartContext'
 
 export function Checkout () {
@@ -26,17 +29,67 @@ export function Checkout () {
   const [orderId, setOrderId] =
     useState('')
 
+  const [placingOrder, setPlacingOrder] =
+    useState(false)
+
+  const [error, setError] = useState('')
+
   function goBackToCart () {
     navigate('/cart')
   }
 
-  function placeOrder () {
-    const newOrderId =
-      `ORD-${Date.now()}`
+  async function placeOrder () {
+    setError('')
 
-    setOrderId(newOrderId)
-    clearCart()
-    setOrderPlaced(true)
+    const userToken =
+      sessionStorage.getItem('userToken')
+
+    if (!userToken) {
+      setError(
+        'Your session has expired. Please log in again.'
+      )
+      return
+    }
+
+    setPlacingOrder(true)
+
+    try {
+      const response = await actionWebInvoke(
+        allActions['hl-capstone/create-order'],
+        {},
+        {
+          token: userToken,
+          items: cartItems.map((item) => ({
+            productId: item.productId,
+            title: item.title,
+            price: item.price,
+            quantity: item.quantity,
+            image: item.image
+          }))
+        }
+      )
+
+      console.log('Create order response:', response)
+
+      if (response.success === true) {
+        setOrderId(response.orderId)
+        clearCart()
+        setOrderPlaced(true)
+      } else {
+        setError(
+          response.message ||
+          'Unable to place your order. Please try again.'
+        )
+      }
+    } catch (err) {
+      console.log('Create order request failed:', err)
+
+      setError(
+        'Unable to place your order. Please try again.'
+      )
+    } finally {
+      setPlacingOrder(false)
+    }
   }
 
   function continueShopping () {
@@ -45,29 +98,15 @@ export function Checkout () {
 
   if (orderPlaced) {
     return (
-      <View
-        width="100%"
-        padding="size-400"
-        UNSAFE_style={{
-          boxSizing: 'border-box',
-          maxWidth: '100%',
-          overflowX: 'hidden',
-          textAlign: 'center'
-        }}
-      >
+      <View UNSAFE_className="page-container">
         <View
+          UNSAFE_className="state-message"
           UNSAFE_style={{
             maxWidth: '600px',
             margin: '60px auto'
           }}
         >
-          <Text
-            UNSAFE_style={{
-              display: 'block',
-              fontSize: '48px',
-              marginBottom: '20px'
-            }}
-          >
+          <Text UNSAFE_className="state-icon">
             ✓
           </Text>
 
@@ -109,44 +148,29 @@ export function Checkout () {
 
   if (cartItems.length === 0) {
     return (
-      <View
-        width="100%"
-        padding="size-400"
-      >
+      <View UNSAFE_className="page-container">
         <Heading level={1}>
           Checkout
         </Heading>
 
-        <Text
-          UNSAFE_style={{
-            display: 'block',
-            marginTop: '20px',
-            marginBottom: '24px'
-          }}
-        >
-          Your cart is empty.
-        </Text>
+        <View UNSAFE_className="state-message">
+          <Text UNSAFE_style={{ display: 'block', marginBottom: '20px' }}>
+            Your cart is empty.
+          </Text>
 
-        <Button
-          variant="accent"
-          onPress={continueShopping}
-        >
-          Continue Shopping
-        </Button>
+          <Button
+            variant="accent"
+            onPress={continueShopping}
+          >
+            Continue Shopping
+          </Button>
+        </View>
       </View>
     )
   }
 
   return (
-    <View
-      width="100%"
-      padding="size-400"
-      UNSAFE_style={{
-        boxSizing: 'border-box',
-        maxWidth: '100%',
-        overflowX: 'hidden'
-      }}
-    >
+    <View UNSAFE_className="page-container">
       <Heading level={1}>
         Checkout
       </Heading>
@@ -167,12 +191,7 @@ export function Checkout () {
           margin: '0 auto'
         }}
       >
-        <View
-          borderWidth="thin"
-          borderColor="dark"
-          borderRadius="regular"
-          padding="size-400"
-        >
+        <View UNSAFE_className="card">
           <Heading level={2}>
             Order Summary
           </Heading>
@@ -182,6 +201,7 @@ export function Checkout () {
               key={item.productId}
               justifyContent="space-between"
               alignItems="center"
+              gap="size-200"
               marginTop="size-300"
               UNSAFE_style={{
                 borderBottom:
@@ -189,7 +209,37 @@ export function Checkout () {
                 paddingBottom: '16px'
               }}
             >
-              <View>
+              <View
+                UNSAFE_style={{
+                  flexShrink: 0,
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  width: '64px',
+                  height: '64px',
+                  backgroundColor: '#f7f7f7',
+                  borderRadius: '8px',
+                  padding: '8px',
+                  boxSizing: 'border-box'
+                }}
+              >
+                <img
+                  src={item.image}
+                  alt={item.title}
+                  style={{
+                    maxWidth: '100%',
+                    maxHeight: '100%',
+                    objectFit: 'contain'
+                  }}
+                />
+              </View>
+
+              <View
+                UNSAFE_style={{
+                  flex: 1,
+                  minWidth: 0
+                }}
+              >
                 <Text
                   UNSAFE_style={{
                     display: 'block',
@@ -259,6 +309,12 @@ export function Checkout () {
             </Text>
           </Flex>
 
+          {error && (
+            <Text UNSAFE_className="error-text">
+              {error}
+            </Text>
+          )}
+
           <Flex
             gap="size-200"
             marginTop="size-500"
@@ -267,6 +323,7 @@ export function Checkout () {
             <Button
               variant="secondary"
               onPress={goBackToCart}
+              isDisabled={placingOrder}
             >
               Back to Cart
             </Button>
@@ -274,8 +331,20 @@ export function Checkout () {
             <Button
               variant="accent"
               onPress={placeOrder}
+              isDisabled={placingOrder}
             >
-              Place Order
+              {placingOrder ? (
+                <Flex alignItems="center" gap="size-100">
+                  <ProgressCircle
+                    size="S"
+                    isIndeterminate
+                    aria-label="Placing order"
+                  />
+                  <Text>Placing Order...</Text>
+                </Flex>
+              ) : (
+                'Place Order'
+              )}
             </Button>
           </Flex>
         </View>

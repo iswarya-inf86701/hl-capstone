@@ -5,7 +5,7 @@
 import React from 'react'
 import { Heading, View, Content, Link } from '@adobe/react-spectrum'
 export const About = () => (
-  <View width="size-6000">
+  <View UNSAFE_className="page-container">
     <Heading level={1}>Useful documentation for your app</Heading>
     <Content>
       <ul style={{ listStyle: 'none' }}>
