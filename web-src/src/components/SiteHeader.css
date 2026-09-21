@@ -12,21 +12,67 @@
   color: #2680eb;
 }
 
-.site-header-cart-badge {
-  min-width: 20px;
-  height: 20px;
-  padding: 0 5px;
-  border-radius: 10px;
-  background-color: #d7373f;
-  color: #ffffff;
+/* Desktop nav links (Actions / About) - grouped with the icons on the right */
+.site-header-nav {
   display: flex;
   align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
-  font-size: 11px;
-  font-weight: 700;
-  line-height: 20px;
-  text-align: center;
+  gap: 20px;
+  padding-right: 20px;
+  margin-right: 4px;
+  border-right: 1px solid #e5e5e5;
+}
+
+.site-header-nav-link {
+  font-size: 15px;
+  font-weight: 600;
+  color: #444444;
+  text-decoration: none;
+  padding: 6px 4px;
+  border-bottom: 2px solid transparent;
+}
+
+.site-header-nav-link:hover {
+  color: #2680eb;
+}
+
+.site-header-nav-link.is-active {
+  color: #2680eb;
+  border-bottom-color: #2680eb;
+}
+
+/* Hamburger toggle - only shown on small screens */
+.site-header-menu-toggle {
+  display: none !important;
+}
+
+/* Mobile dropdown nav, shown below the header row */
+.site-header-mobile-nav {
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+  max-width: 1200px;
+  margin: 12px auto 0;
+  border-top: 1px solid #e5e5e5;
+  padding-top: 12px;
+}
+
+.site-header-mobile-nav .site-header-nav-link {
+  padding: 10px 4px;
+  border-bottom: none;
+}
+
+@media (max-width: 720px) {
+  .site-header-nav {
+    display: none;
+  }
+
+  .site-header-menu-toggle {
+    display: inline-flex !important;
+  }
+
+  .site-header-mobile-nav {
+    display: flex;
+  }
 }
 
 @media (max-width: 480px) {

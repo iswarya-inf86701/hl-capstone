@@ -22,11 +22,9 @@ import { Signup } from './Signup'
 import { Login } from './Login'
 import { Account } from './Account'
 import { ProductDetails } from './ProductDetails'
-import { Cart } from './Cart'
-import { Checkout } from './Checkout'
+import { NotFound } from './NotFound'
 import { AuthProvider } from './AuthContext'
 import { ProtectedRoute } from './ProtectedRoute'
-import { CartProvider } from './CartContext'
 import { SiteHeader } from './SiteHeader'
 import './App.css'
 
@@ -74,137 +72,115 @@ function App (props) {
       FallbackComponent={fallbackComponent}
     >
       <AuthProvider>
-        <CartProvider>
-          <Router>
-            <Provider
-              theme={defaultTheme}
-              colorScheme="light"
+        <Router>
+          <Provider
+            theme={defaultTheme}
+            colorScheme="light"
+          >
+            <View
+              width="100%"
+              minHeight="100vh"
+              UNSAFE_style={{
+                boxSizing: 'border-box',
+                overflowX: 'hidden'
+              }}
             >
+
+              {/* Header */}
+              <SiteHeader />
+
+              {/* Page Content */}
               <View
-                width="100%"
-                minHeight="100vh"
+                gridArea="content"
                 UNSAFE_style={{
                   boxSizing: 'border-box',
+                  width: '100%',
+                  maxWidth: '100%',
                   overflowX: 'hidden'
                 }}
               >
+                <Routes>
 
-                {/* Header */}
-                <SiteHeader />
+                  {/* Home */}
+                  <Route
+                    path="/"
+                    element={
+                      <ProtectedRoute>
+                        <Home />
+                      </ProtectedRoute>
+                    }
+                  />
 
-                {/* Page Content */}
-                <View
-                  gridArea="content"
-                  UNSAFE_style={{
-                    boxSizing: 'border-box',
-                    width: '100%',
-                    maxWidth: '100%',
-                    overflowX: 'hidden'
-                  }}
-                >
-                  <Routes>
+                  {/* Product Details */}
+                  <Route
+                    path="/products/:productId"
+                    element={
+                      <ProtectedRoute>
+                        <ProductDetails />
+                      </ProtectedRoute>
+                    }
+                  />
 
-                    {/* Home */}
-                    <Route
-                      path="/"
-                      element={
-                        <ProtectedRoute>
-                          <Home />
-                        </ProtectedRoute>
-                      }
-                    />
+                  {/* Actions */}
+                  <Route
+                    path="/actions"
+                    element={
+                      <ActionsForm
+                        runtime={
+                          props.runtime
+                        }
+                        ims={props.ims}
+                      />
+                    }
+                  />
 
-                    {/* Product Details */}
-                    <Route
-                      path="/products/:productId"
-                      element={
-                        <ProtectedRoute>
-                          <ProductDetails />
-                        </ProtectedRoute>
-                      }
-                    />
+                  {/* Signup */}
+                  <Route
+                    path="/signup"
+                    element={
+                      <Signup
+                        ims={props.ims}
+                      />
+                    }
+                  />
 
-                    {/* Cart */}
-                    <Route
-                      path="/cart"
-                      element={
-                        <ProtectedRoute>
-                          <Cart />
-                        </ProtectedRoute>
-                      }
-                    />
+                  {/* Login */}
+                  <Route
+                    path="/login"
+                    element={
+                      <Login
+                        ims={props.ims}
+                      />
+                    }
+                  />
 
-                    {/* Checkout */}
-                    <Route
-                      path="/checkout"
-                      element={
-                        <ProtectedRoute>
-                          <Checkout />
-                        </ProtectedRoute>
-                      }
-                    />
+                  {/* Account */}
+                  <Route
+                    path="/account"
+                    element={
+                      <ProtectedRoute>
+                        <Account />
+                      </ProtectedRoute>
+                    }
+                  />
 
-                    {/* Actions */}
-                    <Route
-                      path="/actions"
-                      element={
-                        <ProtectedRoute>
-                          <ActionsForm
-                            runtime={
-                              props.runtime
-                            }
-                            ims={props.ims}
-                          />
-                        </ProtectedRoute>
-                      }
-                    />
+                  {/* About */}
+                  <Route
+                    path="/about"
+                    element={<About />}
+                  />
 
-                    {/* Signup */}
-                    <Route
-                      path="/signup"
-                      element={
-                        <Signup
-                          ims={props.ims}
-                        />
-                      }
-                    />
+                  {/* 404 - catch-all for unknown routes */}
+                  <Route
+                    path="*"
+                    element={<NotFound />}
+                  />
 
-                    {/* Login */}
-                    <Route
-                      path="/login"
-                      element={
-                        <Login
-                          ims={props.ims}
-                        />
-                      }
-                    />
-
-                    {/* Account */}
-                    <Route
-                      path="/account"
-                      element={
-                        <ProtectedRoute>
-                          <Account />
-                        </ProtectedRoute>
-                      }
-                    />
-
-                    {/* About */}
-                    <Route
-                      path="/about"
-                      element={
-                        <ProtectedRoute>
-                          <About />
-                        </ProtectedRoute>
-                      }
-                    />
-
-                  </Routes>
-                </View>
+                </Routes>
               </View>
-            </Provider>
-          </Router>
-        </CartProvider>
+            </View>
+          </Provider>
+        </Router>
       </AuthProvider>
     </ErrorBoundary>
   )

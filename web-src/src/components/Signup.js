@@ -280,23 +280,17 @@ export function Signup ({ ims }) {
             </Text>
           </View>
 
-          <Flex
+          <View
             marginTop="size-300"
-            justifyContent="center"
-            alignItems="center"
-            wrap
-            gap="size-100"
+            UNSAFE_style={{ textAlign: 'center' }}
           >
-            <Text>
-              Already have an account?
-            </Text>
-
-            <Link
+            <Button
+              variant="accent"
               onPress={() => navigate('/login')}
             >
               Login
-            </Link>
-          </Flex>
+            </Button>
+          </View>
         </View>
       </View>
     )

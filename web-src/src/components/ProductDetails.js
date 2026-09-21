@@ -11,28 +11,19 @@ import { useNavigate, useParams } from 'react-router-dom'
 
 import actionWebInvoke from '../utils'
 import allActions from '../config.json'
-import { useCart } from './CartContext'
+import { useAuth } from './AuthContext'
 import './Products.css'
 
 export function ProductDetails () {
   const { productId } = useParams()
   const navigate = useNavigate()
-
-  const {
-    cartItems,
-    addToCart,
-    increaseQuantity: increaseCartQuantity,
-    decreaseQuantity: decreaseCartQuantity,
-    cartQuantity
-  } = useCart()
+  const { logout } = useAuth()
 
   const [product, setProduct] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
-  const [addedToCart, setAddedToCart] = useState(false)
 
   useEffect(() => {
-    setAddedToCart(false)
     loadProductDetails()
   }, [productId])
 
@@ -102,40 +93,6 @@ export function ProductDetails () {
     navigate('/')
   }
 
-  // Quantity always reflects the live cart state for this product,
-  // so the stepper and Add to Cart button stay in sync both ways.
-  const cartItem = product
-    ? cartItems.find(
-        (item) => item.productId === product.productId
-      )
-    : null
-
-  const quantity = cartItem ? cartItem.quantity : 0
-
-  function decreaseQuantity () {
-    if (quantity > 0) {
-      decreaseCartQuantity(product.productId)
-    }
-  }
-
-  function increaseQuantity () {
-    if (quantity === 0) {
-      addToCart(product, 1)
-    } else {
-      increaseCartQuantity(product.productId)
-    }
-
-    setAddedToCart(true)
-  }
-
-  function handleAddToCart () {
-    increaseQuantity()
-  }
-
-  function goToCart () {
-    navigate('/cart')
-  }
-
   if (loading) {
     return (
       <View UNSAFE_className="page-container">
@@ -168,16 +125,21 @@ export function ProductDetails () {
           Back to Products
         </Button>
 
-        <Heading
-          level={1}
-          marginTop="size-400"
-        >
-          Product Not Found
-        </Heading>
-
         <Text UNSAFE_className="error-text">
           {error}
         </Text>
+
+        <View marginTop="size-300">
+          <Button
+            variant="accent"
+            onPress={() => {
+              logout()
+              navigate('/login')
+            }}
+          >
+            Login
+          </Button>
+        </View>
       </View>
     )
   }
@@ -266,57 +228,8 @@ export function ProductDetails () {
             Product ID: {product.productId}
           </Text>
 
-          {/* Quantity + Add to Cart */}
-          <View UNSAFE_className="pd-purchase-row">
-            <View
-              UNSAFE_className="qty-selector"
-            >
-              <button
-                type="button"
-                onClick={decreaseQuantity}
-                disabled={quantity <= 0}
-                aria-label="Decrease quantity"
-              >
-                −
-              </button>
-
-              <span className="qty-value">
-                {quantity}
-              </span>
-
-              <button
-                type="button"
-                onClick={increaseQuantity}
-                aria-label="Increase quantity"
-              >
-                +
-              </button>
-            </View>
-
-            <Button
-              variant="accent"
-              UNSAFE_className="pd-add-to-cart"
-              onPress={handleAddToCart}
-            >
-              Add to Cart
-            </Button>
-          </View>
-
-          {addedToCart && (
-            <Text UNSAFE_className="pd-added-message">
-              Added to cart.
-            </Text>
-          )}
-
           {/* Secondary Actions */}
           <View UNSAFE_className="pd-secondary-actions">
-            <Button
-              variant="secondary"
-              onPress={goToCart}
-            >
-              View Cart ({cartQuantity})
-            </Button>
-
             <Button
               variant="secondary"
               onPress={goBackToHome}

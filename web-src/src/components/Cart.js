@@ -27,10 +27,6 @@ export function Cart () {
     navigate('/')
   }
 
-  function proceedToCheckout () {
-    navigate('/checkout')
-  }
-
   function viewProductDetails (productId) {
     navigate(`/products/${productId}`)
   }
@@ -180,7 +176,7 @@ export function Cart () {
                     marginBottom: '16px'
                   }}
                 >
-                  ${Number(item.price).toFixed(2)}
+                  ₹{Number(item.price).toFixed(2)}
                 </Text>
 
                 {/* Quantity Controls */}
@@ -242,7 +238,7 @@ export function Cart () {
                     fontWeight: '700'
                   }}
                 >
-                  $
+                ₹
                   {(
                     Number(item.price) *
                     item.quantity
@@ -291,23 +287,14 @@ export function Cart () {
                 fontWeight: '700'
               }}
             >
-              ${cartTotal.toFixed(2)}
+            ₹{cartTotal.toFixed(2)}
             </Text>
           </Flex>
 
           <Button
-            variant="accent"
-            width="100%"
-            marginTop="size-400"
-            onPress={proceedToCheckout}
-          >
-            Proceed to Checkout
-          </Button>
-
-          <Button
             variant="secondary"
             width="100%"
-            marginTop="size-200"
+            marginTop="size-400"
             onPress={continueShopping}
           >
             Continue Shopping

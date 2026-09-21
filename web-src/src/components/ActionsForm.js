@@ -44,85 +44,90 @@ const ActionsForm = (props) => {
   })
 
   return (
-    <View width="size-6000">
+    <View UNSAFE_className="page-container">
       <Heading level={1}>Run your application backend actions</Heading>
-      {Object.keys(actions).length > 0 && (
-        <Form necessityIndicator="label">
-          <Picker
-            label="Actions"
-            isRequired={true}
-            placeholder="select an action"
-            aria-label="select an action"
-            items={Object.keys(actions).map((k) => ({ name: k }))}
-            itemKey="name"
-            onSelectionChange={(name) =>
-              setState({
-                ...state,
-                actionSelected: name,
-                actionResponseError: null,
-                actionResponse: null
-              })
-            }
-          >
-            {(item) => <Item key={item.name}>{item.name}</Item>}
-          </Picker>
 
-          <TextArea
-            label="headers"
-            placeholder='{ "key": "value" }'
-            validationState={state.actionHeadersValid}
-            onChange={(input) =>
-              setJSONInput(input, 'actionHeaders', 'actionHeadersValid')
-            }
-          />
+      <View UNSAFE_className="card" marginTop="size-300" UNSAFE_style={{ maxWidth: '640px' }}>
+        {Object.keys(actions).length > 0 && (
+          <Form necessityIndicator="label">
+            <Picker
+              label="Actions"
+              isRequired={true}
+              placeholder="select an action"
+              aria-label="select an action"
+              items={Object.keys(actions).map((k) => ({ name: k }))}
+              itemKey="name"
+              width="100%"
+              onSelectionChange={(name) =>
+                setState({
+                  ...state,
+                  actionSelected: name,
+                  actionResponseError: null,
+                  actionResponse: null
+                })
+              }
+            >
+              {(item) => <Item key={item.name}>{item.name}</Item>}
+            </Picker>
 
-          <TextArea
-            label="params"
-            placeholder='{ "key": "value" }'
-            validationState={state.actionParamsValid}
-            onChange={(input) =>
-              setJSONInput(input, 'actionParams', 'actionParamsValid')
-            }
-          />
-          <Flex>
-            <ActionButton
-              variant="primary"
-              type="button"
-              onPress={invokeAction.bind(this)}
-              isDisabled={!state.actionSelected}
-            ><Function aria-label="Invoke" /><Text>Invoke</Text></ActionButton>
-
-            <ProgressCircle
-              aria-label="loading"
-              isIndeterminate
-              isHidden={!state.actionInvokeInProgress}
-              marginStart="size-100"
+            <TextArea
+              label="headers"
+              placeholder='{ "key": "value" }'
+              validationState={state.actionHeadersValid}
+              width="100%"
+              onChange={(input) =>
+                setJSONInput(input, 'actionHeaders', 'actionHeadersValid')
+              }
             />
-          </Flex>
-        </Form>
-      )}
 
-      {state.actionResponseError && (
-        <View padding={'size-100'} marginTop={'size-100'} marginBottom={'size-100'} borderRadius={'small '}>
-          <StatusLight variant="negative">Failure! See the complete error in your browser console.</StatusLight>
-        </View>
-      )}
-      {!state.actionResponseError && state.actionResponse && (
-        <View padding={'size-100'} marginTop={'size-100'} marginBottom={'size-100'} borderRadius={'small '}>
-          <StatusLight variant="positive">Success! See the complete response in your browser console.</StatusLight>
-        </View>
-      )}
+            <TextArea
+              label="params"
+              placeholder='{ "key": "value" }'
+              validationState={state.actionParamsValid}
+              width="100%"
+              onChange={(input) =>
+                setJSONInput(input, 'actionParams', 'actionParamsValid')
+              }
+            />
+            <Flex wrap alignItems="center" gap="size-100">
+              <ActionButton
+                variant="primary"
+                type="button"
+                onPress={invokeAction.bind(this)}
+                isDisabled={!state.actionSelected}
+              ><Function aria-label="Invoke" /><Text>Invoke</Text></ActionButton>
 
-      {Object.keys(actions).length === 0 && <Text>You have no actions !</Text>}
-      <TextArea
-        label="results"
-        isReadOnly={true}
-        width="size-6000"
-        height="size-6000"
-        maxWidth="100%"
-        value={state.actionResult}
-        validationState={(!state.actionResponseError) ? 'valid' : 'invalid'}
-      />
+              <ProgressCircle
+                aria-label="loading"
+                isIndeterminate
+                isHidden={!state.actionInvokeInProgress}
+                marginStart="size-100"
+              />
+            </Flex>
+          </Form>
+        )}
+
+        {state.actionResponseError && (
+          <View padding={'size-100'} marginTop={'size-100'} marginBottom={'size-100'} borderRadius={'small '}>
+            <StatusLight variant="negative">Failure! See the complete error in your browser console.</StatusLight>
+          </View>
+        )}
+        {!state.actionResponseError && state.actionResponse && (
+          <View padding={'size-100'} marginTop={'size-100'} marginBottom={'size-100'} borderRadius={'small '}>
+            <StatusLight variant="positive">Success! See the complete response in your browser console.</StatusLight>
+          </View>
+        )}
+
+        {Object.keys(actions).length === 0 && <Text>You have no actions !</Text>}
+        <TextArea
+          label="results"
+          isReadOnly={true}
+          width="100%"
+          height="size-3600"
+          value={state.actionResult}
+          validationState={(!state.actionResponseError) ? 'valid' : 'invalid'}
+        />
+      </View>
     </View>
   )
 

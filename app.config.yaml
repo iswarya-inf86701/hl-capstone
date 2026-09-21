@@ -101,28 +101,6 @@ application:
               include-ims-credentials: true
               final: true
 
-          create-order:
-            function: actions/create-order/index.js
-            web: 'yes'
-            runtime: nodejs:22
-            inputs:
-              LOG_LEVEL: debug
-            annotations:
-              require-adobe-auth: false
-              include-ims-credentials: true
-              final: true
-
-          get-orders:
-            function: actions/get-orders/index.js
-            web: 'yes'
-            runtime: nodejs:22
-            inputs:
-              LOG_LEVEL: debug
-            annotations:
-              require-adobe-auth: false
-              include-ims-credentials: true
-              final: true
-
     database:
       auto-provision: false
       region: apac

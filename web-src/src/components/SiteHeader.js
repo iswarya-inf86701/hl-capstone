@@ -1,21 +1,21 @@
-import React from 'react'
+import React, { useState } from 'react'
 import {
   ActionButton,
+  Button,
   Flex,
   Text,
   View
 } from '@adobe/react-spectrum'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import User from '@spectrum-icons/workflow/User'
-import ShoppingCart from '@spectrum-icons/workflow/ShoppingCart'
+import ShowMenu from '@spectrum-icons/workflow/ShowMenu'
+import Close from '@spectrum-icons/workflow/Close'
 
-import { useCart } from './CartContext'
+import { useAuth } from './AuthContext'
 import './SiteHeader.css'
 
 const HEADER_ROUTES = new Set([
   '/',
-  '/cart',
-  '/checkout',
   '/actions',
   '/account',
   '/about'
@@ -31,22 +31,31 @@ function shouldShowHeader (pathname) {
 export function SiteHeader () {
   const navigate = useNavigate()
   const { pathname } = useLocation()
-  const { cartQuantity } = useCart()
+  const { logout } = useAuth()
+  const [menuOpen, setMenuOpen] = useState(false)
 
   if (!shouldShowHeader(pathname)) {
     return null
   }
 
   function goToAccount () {
+    setMenuOpen(false)
     navigate('/account')
   }
 
-  function goToCart () {
-    navigate('/cart')
+  function goToHome () {
+    setMenuOpen(false)
+    navigate('/')
   }
 
-  function goToHome () {
-    navigate('/')
+  function toggleMenu () {
+    setMenuOpen((isOpen) => !isOpen)
+  }
+
+  function handleLogout () {
+    setMenuOpen(false)
+    logout()
+    navigate('/login')
   }
 
   return (
@@ -92,8 +101,28 @@ export function SiteHeader () {
 
         <Flex
           alignItems="center"
-          gap="size-200"
+          gap="size-300"
         >
+          <nav className="site-header-nav">
+            <NavLink
+              to="/actions"
+              className={({ isActive }) =>
+                `site-header-nav-link ${isActive ? 'is-active' : ''}`
+              }
+            >
+              Actions
+            </NavLink>
+
+            <NavLink
+              to="/about"
+              className={({ isActive }) =>
+                `site-header-nav-link ${isActive ? 'is-active' : ''}`
+              }
+            >
+              About
+            </NavLink>
+          </nav>
+
           <ActionButton
             isQuiet
             aria-label="Account"
@@ -102,32 +131,47 @@ export function SiteHeader () {
             <User size="L" />
           </ActionButton>
 
-          <View
-            position="relative"
+          <Button
+            variant="secondary"
+            onPress={handleLogout}
           >
-            <ActionButton
-              isQuiet
-              aria-label={
-                `Shopping cart, ${cartQuantity} items`
-              }
-              onPress={goToCart}
-            >
-              <ShoppingCart size="L" />
-            </ActionButton>
+            Logout
+          </Button>
 
-            {cartQuantity > 0 && (
-              <View
-                position="absolute"
-                top="-4px"
-                right="-4px"
-                UNSAFE_className="site-header-cart-badge"
-              >
-                {cartQuantity}
-              </View>
-            )}
-          </View>
+          <ActionButton
+            isQuiet
+            aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+            onPress={toggleMenu}
+            UNSAFE_className="site-header-menu-toggle"
+          >
+            {menuOpen ? <Close size="M" /> : <ShowMenu size="M" />}
+          </ActionButton>
         </Flex>
       </Flex>
+
+      {menuOpen && (
+        <nav className="site-header-mobile-nav">
+          <NavLink
+            to="/actions"
+            className={({ isActive }) =>
+              `site-header-nav-link ${isActive ? 'is-active' : ''}`
+            }
+            onClick={() => setMenuOpen(false)}
+          >
+            Actions
+          </NavLink>
+
+          <NavLink
+            to="/about"
+            className={({ isActive }) =>
+              `site-header-nav-link ${isActive ? 'is-active' : ''}`
+            }
+            onClick={() => setMenuOpen(false)}
+          >
+            About
+          </NavLink>
+        </nav>
+      )}
     </View>
   )
 }
