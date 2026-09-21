@@ -6,21 +6,14 @@ import React from 'react'
 import {
   Provider,
   defaultTheme,
-  View,
-  Flex,
-  Text,
-  ActionButton
+  View
 } from '@adobe/react-spectrum'
 import ErrorBoundary from 'react-error-boundary'
 import {
   HashRouter as Router,
   Routes,
-  Route,
-  useNavigate
+  Route
 } from 'react-router-dom'
-
-import User from '@spectrum-icons/workflow/User'
-import ShoppingCart from '@spectrum-icons/workflow/ShoppingCart'
 
 import ActionsForm from './ActionsForm'
 import { Home } from './Home'
@@ -33,10 +26,8 @@ import { Cart } from './Cart'
 import { Checkout } from './Checkout'
 import { AuthProvider } from './AuthContext'
 import { ProtectedRoute } from './ProtectedRoute'
-import {
-  CartProvider,
-  useCart
-} from './CartContext'
+import { CartProvider } from './CartContext'
+import { SiteHeader } from './SiteHeader'
 import './App.css'
 
 function App (props) {
@@ -252,136 +243,6 @@ function App (props) {
       </React.Fragment>
     )
   }
-}
-
-/*
- * Header
- */
-function SiteHeader () {
-  const navigate = useNavigate()
-
-  const {
-    cartQuantity
-  } = useCart()
-
-  function goToAccount () {
-    navigate('/account')
-  }
-
-  function goToCart () {
-    navigate('/cart')
-  }
-
-  function goToHome () {
-    navigate('/')
-  }
-
-  return (
-    <View
-      UNSAFE_className="site-header"
-      UNSAFE_style={{
-        width: '100%',
-        boxSizing: 'border-box',
-        borderBottom:
-          '1px solid #e5e5e5',
-        backgroundColor: '#ffffff',
-        padding: '14px 32px',
-        position: 'sticky',
-        top: 0,
-        zIndex: 1000
-      }}
-    >
-      <Flex
-        justifyContent="space-between"
-        alignItems="center"
-        width="100%"
-        UNSAFE_style={{
-          maxWidth: '1200px',
-          margin: '0 auto'
-        }}
-      >
-
-        {/* Ecommerce Logo / Home */}
-        <ActionButton
-          isQuiet
-          onPress={goToHome}
-          aria-label="Go to Home"
-        >
-          <Text
-            UNSAFE_className="site-header-logo"
-            UNSAFE_style={{
-              fontSize: '26px',
-              fontWeight: '700',
-              lineHeight: '1'
-            }}
-          >
-            Ecommerce
-          </Text>
-        </ActionButton>
-
-        {/* Account + Cart */}
-        <Flex
-          alignItems="center"
-          gap="size-200"
-        >
-
-          {/* Account */}
-          <ActionButton
-            isQuiet
-            aria-label="Account"
-            onPress={goToAccount}
-          >
-            <User size="L" />
-          </ActionButton>
-
-          {/* Cart */}
-          <View
-            position="relative"
-          >
-            <ActionButton
-              isQuiet
-              aria-label={
-                `Shopping cart, ${cartQuantity} items`
-              }
-              onPress={goToCart}
-            >
-              <ShoppingCart size="L" />
-            </ActionButton>
-
-            {/* Cart Quantity Badge */}
-            {cartQuantity > 0 && (
-              <View
-                position="absolute"
-                top="-4px"
-                right="-4px"
-                UNSAFE_style={{
-                  minWidth: '20px',
-                  height: '20px',
-                  padding: '0 5px',
-                  borderRadius: '10px',
-                  backgroundColor:
-                    '#d7373f',
-                  color: 'white',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent:
-                    'center',
-                  boxSizing: 'border-box',
-                  fontSize: '11px',
-                  fontWeight: '700',
-                  lineHeight: '20px',
-                  textAlign: 'center'
-                }}
-              >
-                {cartQuantity}
-              </View>
-            )}
-          </View>
-
-        </Flex>
-      </Flex>
-    </View>
-  )
 }
 
 export default App

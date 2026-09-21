@@ -259,12 +259,9 @@ export function Products () {
         overflowX: 'hidden'
       }}
     >
-      {/* Page Header */}
       <Heading level={1}>
         Products
       </Heading>
-
-      {/* Search / Filter / Sort */}
       <Flex
         gap="size-200"
         marginTop="size-300"
@@ -277,7 +274,7 @@ export function Products () {
       >
         <TextField
           label="Search products"
-          placeholder="Search by product name"
+          helpText="Search by product name"
           value={searchTerm}
           onChange={handleSearchChange}
           width="size-4600"
@@ -343,7 +340,6 @@ export function Products () {
         </Picker>
       </Flex>
 
-      {/* Product Count */}
       <Text
         UNSAFE_style={{
           display: 'block',
@@ -353,8 +349,6 @@ export function Products () {
         Showing {paginatedProducts.length} of{' '}
         {sortedProducts.length} products
       </Text>
-
-      {/* Product Cards */}
       {paginatedProducts.length === 0 ? (
         <Text>
           No products found.
@@ -381,7 +375,6 @@ export function Products () {
                     '0 2px 8px rgba(0, 0, 0, 0.08)'
                 }}
               >
-                {/* Product Image */}
                 <View
                   height="size-2400"
                   UNSAFE_style={{
@@ -405,8 +398,6 @@ export function Products () {
                     }}
                   />
                 </View>
-
-                {/* Product Information */}
                 <View
                   UNSAFE_style={{
                     display: 'flex',
@@ -429,8 +420,6 @@ export function Products () {
                   >
                     {product.title}
                   </Text>
-
-                  {/* Price */}
                   <Text
                     UNSAFE_style={{
                       display: 'block',
@@ -439,10 +428,8 @@ export function Products () {
                       marginBottom: '8px'
                     }}
                   >
-                    ${product.price}
+                    ₹{product.price}
                   </Text>
-
-                  {/* Rating */}
                   {product.rating && (
                     <Text
                       UNSAFE_style={{
@@ -455,8 +442,6 @@ export function Products () {
                       {product.rating.count} reviews)
                     </Text>
                   )}
-
-                  {/* Category */}
                   <Text
                     UNSAFE_style={{
                       display: 'block',
@@ -467,8 +452,6 @@ export function Products () {
                   >
                     {product.category}
                   </Text>
-
-                  {/* View Product Button */}
                   <Button
                     variant="accent"
                     width="100%"
@@ -486,8 +469,6 @@ export function Products () {
           )}
         </View>
       )}
-
-      {/* Pagination */}
       {totalPages > 1 && (
         <Flex
           justifyContent="center"

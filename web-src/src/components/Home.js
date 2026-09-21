@@ -458,7 +458,7 @@ export function Home () {
                     }}
                     UNSAFE_className="brand-price"
                   >
-                    ${product.price}
+                    ₹{product.price}
                   </Text>
 
                   {product.rating && (

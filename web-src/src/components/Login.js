@@ -18,7 +18,7 @@ import './AuthPages.css'
 
 export function Login ({ ims }) {
   const navigate = useNavigate()
-  const { login } = useAuth()
+  const { login, user, authenticated, authLoading } = useAuth()
 
   const [identifier, setIdentifier] = useState('')
   const [password, setPassword] = useState('')
@@ -104,6 +104,46 @@ export function Login ({ ims }) {
 
       setLoading(false)
     }
+  }
+
+  if (!authLoading && authenticated) {
+    return (
+      <View UNSAFE_className="auth-page">
+        <View UNSAFE_className="auth-card card">
+          <Heading
+            level={1}
+            UNSAFE_style={{
+              margin: 0,
+              textAlign: 'center'
+            }}
+          >
+            You're already logged in
+          </Heading>
+
+          <Text
+            UNSAFE_style={{
+              display: 'block',
+              textAlign: 'center',
+              marginTop: '12px'
+            }}
+          >
+            {user?.name ? `Welcome back, ${user.name}.` : 'Welcome back.'}
+          </Text>
+
+          <View
+            marginTop="size-400"
+            UNSAFE_style={{ textAlign: 'center' }}
+          >
+            <Button
+              variant="accent"
+              onPress={() => navigate('/')}
+            >
+              Go to Home
+            </Button>
+          </View>
+        </View>
+      </View>
+    )
   }
 
   return (

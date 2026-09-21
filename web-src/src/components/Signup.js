@@ -14,10 +14,12 @@ import { useNavigate } from 'react-router-dom'
 
 import actionWebInvoke from '../utils'
 import allActions from '../config.json'
+import { useAuth } from './AuthContext'
 import './AuthPages.css'
 
 export function Signup ({ ims }) {
   const navigate = useNavigate()
+  const { user, authenticated, authLoading } = useAuth()
 
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -197,6 +199,46 @@ export function Signup ({ ims }) {
     }
   }
 
+  if (!authLoading && authenticated) {
+    return (
+      <View UNSAFE_className="auth-page">
+        <View UNSAFE_className="auth-card card">
+          <Heading
+            level={1}
+            UNSAFE_style={{
+              margin: 0,
+              textAlign: 'center'
+            }}
+          >
+            You're already logged in
+          </Heading>
+
+          <Text
+            UNSAFE_style={{
+              display: 'block',
+              textAlign: 'center',
+              marginTop: '12px'
+            }}
+          >
+            {user?.name ? `Welcome back, ${user.name}.` : 'Welcome back.'}
+          </Text>
+
+          <View
+            marginTop="size-400"
+            UNSAFE_style={{ textAlign: 'center' }}
+          >
+            <Button
+              variant="accent"
+              onPress={() => navigate('/')}
+            >
+              Go to Home
+            </Button>
+          </View>
+        </View>
+      </View>
+    )
+  }
+
   if (success) {
     return (
       <View
@@ -212,7 +254,7 @@ export function Signup ({ ims }) {
               textAlign: 'center'
             }}
           >
-            Hi {createdName}! 👋
+            Hi {createdName}!
           </Heading>
 
           <View

@@ -3,23 +3,6 @@
  * Reusable layout, card, button and form classes used across pages.
  */
 
-:root {
-  --ec-max-width: 1200px;
-  --ec-radius: 10px;
-  --ec-border: #e5e5e5;
-  --ec-bg-muted: #f7f7f7;
-  --ec-danger: #d7373f;
-  --ec-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-
-  /* Brand palette used consistently across every page */
-  --brand-primary: #2680eb;
-  --brand-primary-dark: #1473e6;
-  --brand-accent: #fa6400;
-  --brand-success: #2d9d78;
-  --brand-amber: #f5a623;
-  --brand-gradient: linear-gradient(90deg, var(--brand-primary), var(--brand-accent));
-}
-
 /* Colorful underline accent below every page heading, for a consistent brand feel */
 .page-container > h1,
 .page-container > div > h1 {
@@ -27,31 +10,10 @@
   padding-bottom: 14px;
 }
 
-.page-container > h1::after,
-.page-container > div > h1::after {
-  content: '';
-  display: block;
-  width: 56px;
-  height: 4px;
-  border-radius: 2px;
-  margin-top: 10px;
-  background: var(--brand-gradient);
-}
-
 /* Login / Signup card branding */
 .auth-card {
   border-top: 4px solid transparent;
-  border-image: var(--brand-gradient) 1;
-}
-
-.auth-card h1::after {
-  content: '';
-  display: block;
-  width: 56px;
-  height: 4px;
-  border-radius: 2px;
-  margin: 10px auto 0;
-  background: var(--brand-gradient);
+  border-image: linear-gradient(90deg, #2680eb, #fa6400) 1;
 }
 
 .category-badge {
@@ -61,20 +23,20 @@
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.03em;
-  color: var(--brand-primary-dark);
+  color: #1473e6;
   background-color: #eaf2fe;
   border-radius: 999px;
   padding: 4px 12px;
 }
 
 .brand-price {
-  color: var(--brand-primary-dark);
+  color: #1473e6;
 }
 
 /* Common page content container used by every page */
 .page-container {
   width: 100%;
-  max-width: var(--ec-max-width);
+  max-width: 1200px;
   margin: 0 auto;
   padding: 32px 24px;
   box-sizing: border-box;
@@ -96,9 +58,9 @@
 
 .card {
   background-color: #ffffff;
-  border: 1px solid var(--ec-border);
-  border-radius: var(--ec-radius);
-  box-shadow: var(--ec-shadow);
+  border: 1px solid #e5e5e5;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   box-sizing: border-box;
   padding: 24px;
 }
@@ -148,7 +110,7 @@
 
 .error-text {
   display: block;
-  color: var(--ec-danger);
+  color: #d7373f;
   margin-top: 12px;
 }
 
@@ -157,15 +119,15 @@
   display: inline-flex;
   align-items: center;
   gap: 0;
-  border: 1px solid var(--ec-border);
-  border-radius: var(--ec-radius);
+  border: 1px solid #e5e5e5;
+  border-radius: 10px;
   overflow: hidden;
   width: fit-content;
 }
 
 .qty-selector button {
   border: none;
-  background: var(--ec-bg-muted);
+  background: #f7f7f7;
   width: 40px;
   height: 40px;
   font-size: 18px;
@@ -189,7 +151,7 @@
   justify-content: center;
   align-items: center;
   min-height: 450px;
-  background-color: var(--ec-bg-muted);
+  background-color: #f7f7f7;
   border-radius: 16px;
   padding: 32px;
   box-sizing: border-box;
@@ -215,7 +177,7 @@
   font-size: 12px;
   font-weight: 700;
   letter-spacing: 0.03em;
-  color: var(--brand-primary-dark);
+  color: #1473e6;
   background-color: #eaf2fe;
   border-radius: 999px;
   padding: 4px 12px;
@@ -230,7 +192,7 @@
 }
 
 .pd-rating-stars {
-  color: var(--brand-amber);
+  color: #f5a623;
   font-size: 18px;
   letter-spacing: 2px;
 }
@@ -245,12 +207,12 @@
   font-size: 32px;
   font-weight: 700;
   margin-top: 16px;
-  color: var(--brand-primary-dark);
+  color: #1473e6;
 }
 
 .pd-divider {
   height: 1px;
-  background-color: var(--ec-border);
+  background-color: #e5e5e5;
   margin: 20px 0;
 }
 
@@ -277,7 +239,8 @@
 }
 
 .pd-add-to-cart {
-  flex: 1 1 200px;
+  flex: 0 1 220px;
+  height: 44px !important;
   min-width: 180px;
 }
 
@@ -303,21 +266,7 @@
 .product-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 10px 24px rgba(38, 128, 235, 0.18);
-  border-color: var(--brand-primary);
-}
-
-/* Site header branding */
-.site-header {
-  border-bottom-color: var(--ec-border) !important;
-  box-shadow: inset 0 -3px 0 0 var(--brand-primary);
-}
-
-.site-header-logo {
-  background: var(--brand-gradient);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: var(--brand-primary);
+  border-color: #2680eb;
 }
 
 /* Order status badges */
@@ -333,28 +282,28 @@
 }
 
 .status-badge.status-placed {
-  color: var(--brand-success);
+  color: #2d9d78;
   background-color: #e5f6ef;
 }
 
 /* Logout button - pill-shaped outline, matching the rest of the design system */
 .btn-logout {
   border-radius: 999px !important;
-  border: 2px solid var(--ec-danger) !important;
+  border: 2px solid #d7373f !important;
   background-color: #ffffff !important;
-  color: var(--ec-danger) !important;
+  color: #d7373f !important;
   font-weight: 700 !important;
   transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 .btn-logout:hover {
-  background-color: var(--ec-danger) !important;
+  background-color: #d7373f !important;
   color: #ffffff !important;
 }
 
 /* Order history cards */
-.order-card {  border: 1px solid var(--ec-border);
-  border-radius: var(--ec-radius);
+.order-card {  border: 1px solid #e5e5e5;
+  border-radius: 10px;
   padding: 20px;
   margin-bottom: 16px;
   box-sizing: border-box;
@@ -390,18 +339,7 @@
   font-weight: 700;
   margin-top: 12px;
   padding-top: 12px;
-  border-top: 1px solid var(--ec-border);
-}
-
-/* Header responsiveness */
-@media (max-width: 480px) {
-  .site-header {
-    padding: 10px 16px !important;
-  }
-
-  .site-header-logo {
-    font-size: 20px !important;
-  }
+  border-top: 1px solid #e5e5e5;
 }
 
 /* Responsive breakpoints */
@@ -475,7 +413,9 @@
   }
 
   .pd-add-to-cart {
+    flex: none;
     width: 100%;
+    min-width: 0;
   }
 
   .pd-secondary-actions {

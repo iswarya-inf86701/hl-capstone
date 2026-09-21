@@ -251,7 +251,7 @@ export function ProductDetails () {
 
           {/* Price */}
           <Text UNSAFE_className="pd-price">
-            ${product.price}
+             ₹{product.price}
           </Text>
 
           <View UNSAFE_className="pd-divider" />
