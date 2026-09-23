@@ -1,11 +1,16 @@
 const { Core } = require('@adobe/aio-sdk')
 const libDb = require('@adobe/aio-lib-db')
-const productsData = require('../data/products.json')
 
 async function main (params) {
   let client
 
   try {
+    // Products are now supplied by the caller
+    // (e.g. pasted into the /actions test page
+    // as { "products": [...] }) instead of a
+    // bundled data file.
+    const productsData = params.products
+
     const tokenResponse =
       await Core.AuthClient.generateAccessToken(params)
 
@@ -27,10 +32,12 @@ async function main (params) {
       productsData.length === 0
     ) {
       return {
-        statusCode: 200,
+        statusCode: 400,
         body: {
-          success: true,
-          message: 'No products found to ingest',
+          success: false,
+          message:
+            'No products provided to ingest. ' +
+            'Send { "products": [...] } in the params.',
           count: 0
         }
       }
