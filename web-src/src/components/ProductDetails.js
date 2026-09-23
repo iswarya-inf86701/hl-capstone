@@ -129,17 +129,19 @@ export function ProductDetails () {
           {error}
         </Text>
 
-        <View marginTop="size-300">
-          <Button
-            variant="accent"
-            onPress={() => {
-              logout()
-              navigate('/login')
-            }}
-          >
-            Login
-          </Button>
-        </View>
+        {error.includes('log in again') && (
+          <View marginTop="size-300">
+            <Button
+              variant="accent"
+              onPress={() => {
+                logout()
+                navigate('/login')
+              }}
+            >
+              Login
+            </Button>
+          </View>
+        )}
       </View>
     )
   }
@@ -150,13 +152,6 @@ export function ProductDetails () {
 
   return (
     <View UNSAFE_className="page-container">
-      {/* Back Button */}
-      <Button
-        variant="secondary"
-        onPress={goBackToHome}
-      >
-        Back to Products
-      </Button>
 
       {/* Product Details */}
       <View
@@ -228,10 +223,21 @@ export function ProductDetails () {
             Product ID: {product.productId}
           </Text>
 
+          {/* Add to Cart - display only, no cart functionality wired up */}
+          <View UNSAFE_className="pd-purchase-row">
+            <Button
+              variant="accent"
+              UNSAFE_className="pd-add-to-cart"
+            >
+              Add to Cart
+            </Button>
+          </View>
+
           {/* Secondary Actions */}
           <View UNSAFE_className="pd-secondary-actions">
             <Button
               variant="secondary"
+              UNSAFE_className="pd-continue-shopping"
               onPress={goBackToHome}
             >
               Continue Shopping

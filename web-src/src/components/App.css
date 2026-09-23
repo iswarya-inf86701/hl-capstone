@@ -200,11 +200,29 @@
   margin-bottom: 24px;
 }
 
+.pd-purchase-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.pd-add-to-cart {
+  flex: 0 1 220px;
+  height: 44px !important;
+  min-width: 180px;
+}
+
 .pd-secondary-actions {
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
   margin-top: 16px;
+}
+
+.pd-continue-shopping {
+  height: 44px !important;
+  min-width: 180px;
 }
 
 /* Product cards - colorful hover interaction */
@@ -280,8 +298,24 @@
     min-height: 320px;
   }
 
+  .pd-purchase-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .pd-add-to-cart {
+    flex: none;
+    width: 100%;
+    min-width: 0;
+  }
+
   .pd-secondary-actions {
     flex-direction: column;
+  }
+
+  .pd-continue-shopping {
+    width: 100%;
+    min-width: 0;
   }
 }
 

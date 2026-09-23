@@ -10,6 +10,51 @@ async function main (params) {
   try {
     const { token } = params
 
+    // Pagination params sent by the frontend.
+    // Defaults keep old "load everything" behaviour if omitted.
+    const page = Math.max(
+      1,
+      parseInt(params.page, 10) || 1
+    )
+
+    const limit = Math.max(
+      1,
+      parseInt(params.limit, 10) || 6
+    )
+
+    const skip = (page - 1) * limit
+
+    const search = (params.search || '').trim()
+    const category = (params.category || 'all').trim()
+    const sortOption = params.sort || 'default'
+
+    // Build the Mongo-style filter from the
+    // search/category params sent by the frontend.
+    const filter = {}
+
+    if (search) {
+      filter.title = {
+        $regex: search,
+        $options: 'i'
+      }
+    }
+
+    if (category && category !== 'all') {
+      filter.category = category
+    }
+
+    // Map the frontend sort option to a Mongo sort spec.
+    const sortMap = {
+      'price-low': { price: 1 },
+      'price-high': { price: -1 },
+      'rating-low': { 'rating.rate': 1 },
+      'rating-high': { 'rating.rate': -1 },
+      'name-az': { title: 1 },
+      'name-za': { title: -1 }
+    }
+
+    const sortSpec = sortMap[sortOption]
+
     // Validate application user token
     const authResult =
       await validateUserToken(
@@ -49,8 +94,24 @@ async function main (params) {
     const products =
       await client.collection('products')
 
-    const productList =
-      await products.find({}).toArray()
+    const totalCount =
+      await products.countDocuments(filter)
+
+    // Categories are collected from the full
+    // collection, not just the current page/filter.
+    const categories =
+      await products.distinct('category')
+
+    let productsQuery = products
+        .find(filter)
+        .skip(skip)
+        .limit(limit)
+
+    if (sortSpec) {
+      productsQuery = productsQuery.sort(sortSpec)
+    }
+
+    const productList = await productsQuery.toArray()
 
     return {
       statusCode: 200,
@@ -58,7 +119,14 @@ async function main (params) {
         success: true,
         authenticated: true,
         products: productList,
-        count: productList.length
+        count: productList.length,
+        totalCount,
+        page,
+        limit,
+        totalPages: Math.ceil(
+          totalCount / limit
+        ),
+        categories
       }
     }
   } catch (error) {

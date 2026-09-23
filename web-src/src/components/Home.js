@@ -23,23 +23,58 @@ export function Home () {
   const { logout } = useAuth()
 
   const [products, setProducts] = useState([])
+  const [categories, setCategories] = useState(['all'])
   const [searchTerm, setSearchTerm] = useState('')
-  const [selectedCategory, setSelectedCategory] =
-    useState('all')
-  const [sortOption, setSortOption] =
-    useState('default')
-  const [currentPage, setCurrentPage] =
+
+  // Bundled so every filter/sort/page change is a
+  // single setState call (React 16 doesn't batch
+  // setState calls made outside event handlers, e.g.
+  // inside setTimeout, which caused duplicate fetches).
+  const [query, setQuery] = useState({
+    search: '',
+    category: 'all',
+    sort: 'default',
+    page: 1
+  })
+
+  const [totalPages, setTotalPages] =
     useState(1)
+  const [totalCount, setTotalCount] =
+    useState(0)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
   const productsPerPage = 6
 
+  // Debounce the search box so we don't hit the
+  // server on every keystroke.
   useEffect(() => {
-    loadProducts()
-  }, [])
+    const handle = setTimeout(() => {
+      setQuery((prev) => {
+        // Bail out (same reference) if the search
+        // term didn't actually change, otherwise this
+        // refires the fetch effect for no reason.
+        if (prev.search === searchTerm) {
+          return prev
+        }
 
-  async function loadProducts () {
+        return {
+          ...prev,
+          search: searchTerm,
+          page: 1
+        }
+      })
+    }, 400)
+
+    return () => clearTimeout(handle)
+  }, [searchTerm])
+
+  useEffect(() => {
+    loadProducts(query)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [query])
+
+  async function loadProducts (query) {
     setLoading(true)
     setError('')
 
@@ -58,13 +93,20 @@ export function Home () {
         return
       }
 
+      // Search/category/sort/pagination are all
+      // applied server-side in the action.
       const response = await actionWebInvoke(
         allActions[
           'hl-capstone/get-products'
         ],
         {},
         {
-          token: userToken
+          token: userToken,
+          page: query.page,
+          limit: productsPerPage,
+          search: query.search,
+          category: query.category,
+          sort: query.sort
         }
       )
 
@@ -77,7 +119,12 @@ export function Home () {
         setProducts(
           response.products || []
         )
-        setCurrentPage(1)
+        setTotalPages(response.totalPages || 1)
+        setTotalCount(response.totalCount || 0)
+        setCategories([
+          'all',
+          ...(response.categories || [])
+        ])
       } else {
         setError(
           response.message ||
@@ -104,127 +151,42 @@ export function Home () {
     }
   }
 
-  const categories = [
-    'all',
-    ...new Set(
-      products.map(
-        (product) => product.category
-      )
-    )
-  ]
-
-  const filteredProducts = products.filter(
-    (product) => {
-      const matchesSearch =
-        product.title
-          .toLowerCase()
-          .includes(
-            searchTerm.toLowerCase()
-          )
-
-      const matchesCategory =
-        selectedCategory === 'all' ||
-        product.category === selectedCategory
-
-      return (
-        matchesSearch &&
-        matchesCategory
-      )
-    }
-  )
-
-  const sortedProducts = [
-    ...filteredProducts
-  ]
-
-  switch (sortOption) {
-    case 'price-low':
-      sortedProducts.sort(
-        (a, b) => a.price - b.price
-      )
-      break
-
-    case 'price-high':
-      sortedProducts.sort(
-        (a, b) => b.price - a.price
-      )
-      break
-
-    case 'rating-low':
-      sortedProducts.sort(
-        (a, b) =>
-          (a.rating?.rate || 0) -
-          (b.rating?.rate || 0)
-      )
-      break
-
-    case 'rating-high':
-      sortedProducts.sort(
-        (a, b) =>
-          (b.rating?.rate || 0) -
-          (a.rating?.rate || 0)
-      )
-      break
-
-    case 'name-az':
-      sortedProducts.sort(
-        (a, b) =>
-          a.title.localeCompare(b.title)
-      )
-      break
-
-    case 'name-za':
-      sortedProducts.sort(
-        (a, b) =>
-          b.title.localeCompare(a.title)
-      )
-      break
-
-    default:
-      break
-  }
-
-  const totalPages = Math.ceil(
-    sortedProducts.length /
-    productsPerPage
-  )
-
-  const startIndex =
-    (currentPage - 1) *
-    productsPerPage
-
-  const paginatedProducts =
-    sortedProducts.slice(
-      startIndex,
-      startIndex + productsPerPage
-    )
+  // Products arrive already filtered/sorted/paginated
+  // by the server for the current query params.
+  const paginatedProducts = products
 
   function handleSearchChange (value) {
     setSearchTerm(value)
-    setCurrentPage(1)
   }
 
   function handleCategoryChange (value) {
-    setSelectedCategory(value)
-    setCurrentPage(1)
+    setQuery((prev) => ({
+      ...prev,
+      category: value,
+      page: 1
+    }))
   }
 
   function handleSortChange (value) {
-    setSortOption(value)
-    setCurrentPage(1)
+    setQuery((prev) => ({
+      ...prev,
+      sort: value,
+      page: 1
+    }))
   }
 
   function goToPreviousPage () {
-    setCurrentPage(
-      (page) => Math.max(page - 1, 1)
-    )
+    setQuery((prev) => ({
+      ...prev,
+      page: Math.max(prev.page - 1, 1)
+    }))
   }
 
   function goToNextPage () {
-    setCurrentPage(
-      (page) =>
-        Math.min(page + 1, totalPages)
-    )
+    setQuery((prev) => ({
+      ...prev,
+      page: Math.min(prev.page + 1, totalPages)
+    }))
   }
 
   function viewProductDetails (productId) {
@@ -306,7 +268,7 @@ export function Home () {
         <View UNSAFE_className="filter-category">
           <Picker
             label="Category"
-            selectedKey={selectedCategory}
+            selectedKey={query.category}
             onSelectionChange={
               handleCategoryChange
             }
@@ -330,7 +292,7 @@ export function Home () {
         <View UNSAFE_className="filter-sort">
           <Picker
             label="Sort By"
-            selectedKey={sortOption}
+            selectedKey={query.sort}
             onSelectionChange={
               handleSortChange
             }
@@ -375,7 +337,7 @@ export function Home () {
         }}
       >
         Showing {paginatedProducts.length} of{' '}
-        {sortedProducts.length} products
+        {totalCount} products
       </Text>
 
       {/* Product Cards */}
@@ -395,20 +357,20 @@ export function Home () {
           <Button
             variant="secondary"
             onPress={goToPreviousPage}
-            isDisabled={currentPage === 1}
+            isDisabled={query.page === 1}
           >
             Previous
           </Button>
 
           <Text>
-            Page {currentPage} of {totalPages}
+            Page {query.page} of {totalPages}
           </Text>
 
           <Button
             variant="secondary"
             onPress={goToNextPage}
             isDisabled={
-              currentPage === totalPages
+              query.page === totalPages
             }
           >
             Next
