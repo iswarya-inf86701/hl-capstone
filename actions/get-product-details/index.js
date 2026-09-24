@@ -10,7 +10,6 @@ async function main (params) {
   try {
     const { productId, token } = params
 
-    // Validate product ID
     if (!productId) {
       return {
         statusCode: 400,
@@ -21,7 +20,6 @@ async function main (params) {
       }
     }
 
-    // Validate application user token
     const authResult =
       await validateUserToken(
         params,
@@ -39,8 +37,6 @@ async function main (params) {
       }
     }
 
-    // Generate Adobe IMS access token
-    // for App Builder DB access.
     const tokenResponse =
       await Core.AuthClient.generateAccessToken(
         params
@@ -49,7 +45,6 @@ async function main (params) {
     const accessToken =
       tokenResponse.access_token
 
-    // Initialize App Builder DB
     const db = await libDb.init({
       token: accessToken,
       region: 'apac'

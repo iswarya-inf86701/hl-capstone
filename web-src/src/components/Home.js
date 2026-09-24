@@ -26,10 +26,6 @@ export function Home () {
   const [categories, setCategories] = useState(['all'])
   const [searchTerm, setSearchTerm] = useState('')
 
-  // Bundled so every filter/sort/page change is a
-  // single setState call (React 16 doesn't batch
-  // setState calls made outside event handlers, e.g.
-  // inside setTimeout, which caused duplicate fetches).
   const [query, setQuery] = useState({
     search: '',
     category: 'all',
@@ -46,14 +42,9 @@ export function Home () {
 
   const productsPerPage = 6
 
-  // Debounce the search box so we don't hit the
-  // server on every keystroke.
   useEffect(() => {
     const handle = setTimeout(() => {
       setQuery((prev) => {
-        // Bail out (same reference) if the search
-        // term didn't actually change, otherwise this
-        // refires the fetch effect for no reason.
         if (prev.search === searchTerm) {
           return prev
         }
@@ -71,7 +62,6 @@ export function Home () {
 
   useEffect(() => {
     loadProducts(query)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query])
 
   async function loadProducts (query) {
@@ -79,13 +69,9 @@ export function Home () {
     setError('')
 
     try {
-      // Get the application user token
-      // stored after successful login.
       const userToken =
         sessionStorage.getItem('userToken')
 
-      // Make sure a token exists before
-      // calling the protected product action.
       if (!userToken) {
         setError(
           'Your session has expired. Please log in again.'
@@ -93,8 +79,6 @@ export function Home () {
         return
       }
 
-      // Search/category/sort/pagination are all
-      // applied server-side in the action.
       const response = await actionWebInvoke(
         allActions[
           'hl-capstone/get-products'
@@ -151,8 +135,6 @@ export function Home () {
     }
   }
 
-  // Products arrive already filtered/sorted/paginated
-  // by the server for the current query params.
   const paginatedProducts = products
 
   function handleSearchChange (value) {

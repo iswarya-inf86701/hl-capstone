@@ -10,8 +10,6 @@ async function main (params) {
   try {
     const { token } = params
 
-    // Pagination params sent by the frontend.
-    // Defaults keep old "load everything" behaviour if omitted.
     const page = Math.max(
       1,
       parseInt(params.page, 10) || 1
@@ -28,8 +26,6 @@ async function main (params) {
     const category = (params.category || 'all').trim()
     const sortOption = params.sort || 'default'
 
-    // Build the Mongo-style filter from the
-    // search/category params sent by the frontend.
     const filter = {}
 
     if (search) {
@@ -43,7 +39,6 @@ async function main (params) {
       filter.category = category
     }
 
-    // Map the frontend sort option to a Mongo sort spec.
     const sortMap = {
       'price-low': { price: 1 },
       'price-high': { price: -1 },
@@ -55,7 +50,6 @@ async function main (params) {
 
     const sortSpec = sortMap[sortOption]
 
-    // Validate application user token
     const authResult =
       await validateUserToken(
         params,
@@ -73,8 +67,6 @@ async function main (params) {
       }
     }
 
-    // Generate Adobe IMS access token
-    // for App Builder DB access.
     const tokenResponse =
       await Core.AuthClient.generateAccessToken(
         params
@@ -83,7 +75,6 @@ async function main (params) {
     const accessToken =
       tokenResponse.access_token
 
-    // Initialize App Builder DB
     const db = await libDb.init({
       token: accessToken,
       region: 'apac'
@@ -97,8 +88,6 @@ async function main (params) {
     const totalCount =
       await products.countDocuments(filter)
 
-    // Categories are collected from the full
-    // collection, not just the current page/filter.
     const categories =
       await products.distinct('category')
 

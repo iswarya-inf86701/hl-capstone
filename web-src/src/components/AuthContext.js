@@ -82,7 +82,6 @@ export function AuthProvider ({ children }) {
     }
   }
 
-  // Called after successful login
   function login (userData) {
     setAuthenticated(true)
     setUser(userData)

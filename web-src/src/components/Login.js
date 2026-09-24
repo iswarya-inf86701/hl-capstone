@@ -20,7 +20,7 @@ export function Login ({ ims }) {
   const navigate = useNavigate()
   const { login, user, authenticated, authLoading } = useAuth()
 
-  const [identifier, setIdentifier] = useState('')
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
 
   const [error, setError] = useState('')
@@ -33,9 +33,9 @@ export function Login ({ ims }) {
     setError('')
     setSuccess('')
 
-    if (!identifier.trim() || !password) {
+    if (!email.trim() || !password) {
       setError(
-        'Please enter your email/name and password.'
+        'Please enter your email and password.'
       )
       return
     }
@@ -47,7 +47,7 @@ export function Login ({ ims }) {
         allActions['login'],
         {},
         {
-          email: identifier.trim(),
+          email: email.trim(),
           password: password
         }
       )
@@ -89,12 +89,12 @@ export function Login ({ ims }) {
 
       if (err.status === 401) {
         setError(
-          'Invalid email/name or password.'
+          'Invalid email or password.'
         )
       } else if (err.status === 400) {
         setError(
           err.message ||
-          'Please enter your email/name and password.'
+          'Please enter your email and password.'
         )
       } else {
         setError(
@@ -179,10 +179,10 @@ export function Login ({ ims }) {
             width="100%"
           >
             <TextField
-              label="Email or Name"
-              value={identifier}
+              label="Email"
+              value={email}
               onChange={(value) => {
-                setIdentifier(value)
+                setEmail(value)
                 setError('')
               }}
               isRequired

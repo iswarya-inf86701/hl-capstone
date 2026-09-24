@@ -56,7 +56,6 @@ async function actionWebInvoke (
   try {
     parsedContent = JSON.parse(content)
   } catch (e) {
-    // Response is not JSON
   }
 
   if (!response.ok) {

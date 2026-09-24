@@ -21,14 +21,12 @@ async function validateUserToken (params, token) {
       }
     }
 
-    // Generate Adobe IMS access token for DB access.
     const tokenResponse =
       await Core.AuthClient.generateAccessToken(params)
 
     const accessToken =
       tokenResponse.access_token
 
-    // Initialize App Builder DB.
     const db = await libDb.init({
       token: accessToken,
       region: 'apac'
@@ -55,7 +53,6 @@ async function validateUserToken (params, token) {
       }
     }
 
-    // Token does not exist.
     if (!user) {
       return {
         valid: false,
@@ -63,7 +60,6 @@ async function validateUserToken (params, token) {
       }
     }
 
-    // Check token expiry.
     const tokenExpiryTime =
       new Date(
         user.tokenExpiresAt
@@ -81,7 +77,6 @@ async function validateUserToken (params, token) {
       }
     }
 
-    // Token is valid.
     return {
       valid: true,
       user: {

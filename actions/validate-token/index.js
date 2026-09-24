@@ -7,7 +7,6 @@ async function main (params) {
   try {
     const { token } = params
 
-    // Validate token input
     if (!token) {
       return {
         statusCode: 400,
@@ -19,23 +18,18 @@ async function main (params) {
       }
     }
 
-    // Generate IMS access token for App Builder Database
     const tokenResponse = await Core.AuthClient.generateAccessToken(params)
     const accessToken = tokenResponse.access_token
 
-    // Initialize App Builder Database
     const db = await libDb.init({
       token: accessToken,
       region: 'apac'
     })
 
-    // Connect to database
     client = await db.connect()
 
-    // Get users collection
     const users = await client.collection('users')
 
-    // Find the user associated with the application token
     let user = null
 
     try {
@@ -43,13 +37,11 @@ async function main (params) {
         userToken: token
       })
     } catch (error) {
-      // App Builder DB may return "Document not found"
       if (!error.message?.includes('Document not found')) {
         throw error
       }
     }
 
-    // Token does not exist
     if (!user) {
       return {
         statusCode: 401,
@@ -61,7 +53,6 @@ async function main (params) {
       }
     }
 
-    // Check whether token has expired
     const currentTime = Date.now()
     const tokenExpiryTime = new Date(user.tokenExpiresAt).getTime()
 
@@ -80,7 +71,6 @@ async function main (params) {
       }
     }
 
-    // Token is valid
     return {
       statusCode: 200,
       body: {
@@ -107,7 +97,6 @@ async function main (params) {
       }
     }
   } finally {
-    // Close database connection
     if (client) {
       await client.close()
     }

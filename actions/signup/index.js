@@ -8,7 +8,6 @@ async function main (params) {
   try {
     const { name, email, password } = params
 
-    // Validate required fields
     if (!name || !email || !password) {
       return {
         statusCode: 400,
@@ -19,7 +18,6 @@ async function main (params) {
       }
     }
 
-    // Validate email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
     if (!emailRegex.test(email)) {
@@ -32,7 +30,6 @@ async function main (params) {
       }
     }
 
-    // Validate password
     if (password.length < 6) {
       return {
         statusCode: 400,
@@ -43,13 +40,11 @@ async function main (params) {
       }
     }
 
-    // Generate Adobe access token
     const tokenResponse =
       await Core.AuthClient.generateAccessToken(params)
 
     const accessToken = tokenResponse.access_token
 
-    // Connect to App Builder DB
     const db = await libDb.init({
       token: accessToken,
       region: 'apac'
@@ -59,10 +54,8 @@ async function main (params) {
 
     const users = await client.collection('users')
 
-    // Normalize email
     const normalizedEmail = email.trim().toLowerCase()
 
-    // Check whether user already exists
     let existingUser = null
 
     try {
@@ -85,12 +78,10 @@ async function main (params) {
       }
     }
 
-    // Generate a unique random salt
     const passwordSalt = crypto
       .randomBytes(16)
       .toString('hex')
 
-    // Derive a password hash using scrypt
     const passwordHash = await new Promise(
       (resolve, reject) => {
         crypto.scrypt(
@@ -111,7 +102,6 @@ async function main (params) {
       }
     )
 
-    // Store user in database
     const result = await users.insertOne({
       name: name.trim(),
       email: normalizedEmail,

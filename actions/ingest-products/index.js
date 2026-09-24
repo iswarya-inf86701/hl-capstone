@@ -5,10 +5,6 @@ async function main (params) {
   let client
 
   try {
-    // Products are now supplied by the caller
-    // (e.g. pasted into the /actions test page
-    // as { "products": [...] }) instead of a
-    // bundled data file.
     const productsData = params.products
 
     const tokenResponse =
@@ -43,8 +39,6 @@ async function main (params) {
       }
     }
 
-    // Remove existing products so ingestion
-    // always creates a clean product catalog.
     await products.deleteMany({})
 
     const documents = productsData.map(

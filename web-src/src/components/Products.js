@@ -1,9 +1,6 @@
 import React from 'react'
 import { Text, View, Button } from '@adobe/react-spectrum'
 
-// Renders the grid of product cards for a given list of products.
-// Home.js owns fetching, search/filter/sort and pagination; this
-// component only owns how each product is displayed.
 export function Products ({ products, onViewDetails }) {
   if (products.length === 0) {
     return (
